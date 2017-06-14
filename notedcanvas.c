@@ -67,11 +67,11 @@ void noted_canvas_get_size_request(NotedCanvas *self, unsigned long *width, unsi
 void noted_canvas_draw(NotedCanvas *self, cairo_t *cr, NotedRect *rect)
 {
     cairo_new_path(cr);
-//    printf("draw: %lu, %lu, %lu, %lu\n", x, y, width, height);
-    
     for(unsigned long i=0;i<self->numStrokes;++i)
     {
         Stroke *s = &self->strokes[i];
+        if(!rects_intersect(rect, &s->bounds))
+            continue;
         for(unsigned long j=1;j<s->numPoints;++j)
         {
             Point *o = &self->strokes[i].points[j-1];
@@ -183,10 +183,7 @@ static void * array_append(void **arr, void *element, unsigned long elementSize,
 
 static inline int rects_intersect(NotedRect *a, NotedRect *b)
 {
-    if(a->x1 > b->x2 || b->x1 > a->x2
-    || a->y1 < b->y2 || b->y1 < a->y2)
-        return 0;
-    return 1;
+    return a->x1 < b->x2 && a->x2 > b->x1 && a->y1 < b->y2 && a->y2 > b->y1;
 }
 
 static inline void rect_expand_by_point(NotedRect *a, float x, float y)

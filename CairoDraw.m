@@ -54,7 +54,6 @@
     
     if(self->surface && self->cr && CGSizeEqualToSize(self->surfaceSize, size))
         return;
-    NSLog(@"ensure surface");
     self->surfaceSize = size;
     
     struct CGContext *context = [[NSGraphicsContext currentContext] graphicsPort];
