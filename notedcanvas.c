@@ -54,7 +54,9 @@ NotedCanvas * noted_canvas_new(NotedCanvasSizeCallback sizeCallback, NotedCanvas
 
 void noted_canvas_destroy(NotedCanvas *self)
 {
-    // TODO: free data
+    for(unsigned long i=0;i<self->numStrokes;++i)
+        free(self->strokes[i].points);
+    free(self->strokes);
     free(self);
 }
 
