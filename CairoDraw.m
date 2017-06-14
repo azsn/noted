@@ -1,27 +1,14 @@
 #import "CairoDraw.h"
-#include <cairo/cairo.h>
+
 #include <cairo/cairo-quartz.h>
+#include "notedcanvas.h"
 
 @implementation CairoDraw
 {
-    NSRect cairoRect;
+    NSSize surfaceSize;
     cairo_surface_t *surface;
     cairo_t *cr;
-    bool drawing;
-    NSPoint previousLocation;
-    NSMutableArray *paths;
-}
-
-- (instancetype)initWithFrame:(NSRect)frameRect
-{
-    self = [super initWithFrame:frameRect];
-    if(self)
-    {
-        self->paths = [[NSMutableArray alloc] init];
-        NSLog(@"init paths %@", self->paths);
-//        [self becomeFirstResponder];
-    }
-    return self;
+    NotedCanvas *canvas;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder
@@ -29,49 +16,49 @@
     self = [super initWithCoder:coder];
     if(self)
     {
-        self->paths = [[NSMutableArray alloc] init];
-        NSLog(@"init paths %@", self->paths);
-        //        [self becomeFirstResponder];
+        self->canvas = noted_canvas_new(size_callback, invalidate_callback, (__bridge void *)(self));
     }
     return self;
 }
-//
-//- (BOOL)acceptsFirstResponder
-//{
-//    return YES;
-//}
-//
-//- (BOOL)acceptsFirstMouse:(NSEvent *)event
-//{
-//    return YES;
-//}
 
 - (void)dealloc
 {
-    if(self->surface)
+    if(self->cr)
         cairo_destroy(self->cr);
     if(self->surface)
         cairo_surface_destroy(self->surface);
 }
 
-- (void)setFrameSize:(NSSize)rect
+- (BOOL)isFlipped
 {
-    [super setFrameSize:rect];
-    NSLog(@"set frame size");
-    
+    return YES;
 }
 
-- (void)ensureCairo:(NSRect)rect
+- (void)setFrameSize:(NSSize)rect
 {
+    unsigned long w, h;
+    noted_canvas_get_size_request(self->canvas, &w, &h);
+    if(rect.width < w)
+        rect.width = w;
+    if(rect.height < h)
+        rect.height = h;
     
-    if(self->surface && self->cr && CGSizeEqualToSize(self->cairoRect.size, rect.size))
+    [super setFrameSize:rect];
+}
+
+- (void)ensureSurface
+{
+    NSSize size = [self frame].size;
+    size.height = ceil(size.height);
+    size.width = ceil(size.width);
+    
+    if(self->surface && self->cr && CGSizeEqualToSize(self->surfaceSize, size))
         return;
-//    self->currentPath = [[NSMutableArray alloc] init];
-    NSLog(@"recreate");
-    self->cairoRect = rect;
+    NSLog(@"ensure surface");
+    self->surfaceSize = size;
     
     struct CGContext *context = [[NSGraphicsContext currentContext] graphicsPort];
-    CGContextTranslateCTM (context, 0.0, rect.size.height);
+    CGContextTranslateCTM (context, 0.0, size.height);
     CGContextScaleCTM (context, 1.0, -1.0);
     
     if(self->cr)
@@ -79,79 +66,51 @@
     if(self->surface)
         cairo_surface_destroy(self->surface);
     
-    self->surface = cairo_quartz_surface_create_for_cg_context(context, ceil(rect.size.width), ceil(rect.size.height));
+    self->surface = cairo_quartz_surface_create_for_cg_context(context, size.width, size.height);
     self->cr = cairo_create(surface);
 }
 
 - (void)drawRect:(NSRect)rect
 {
-    [self ensureCairo:rect];
-    
-//    cairo_new_path(self->cr);
-    cairo_stroke_preserve(cr);
-    cairo_path_t *p = cairo_copy_path(cr);
-//    cairo_save(cr);
-    cairo_identity_matrix(cr);
-    for (NSValue *item in self->paths)
-    {
-//        NSLog(@"relaying path");
-        cairo_path_t *path = [item pointerValue];
-        cairo_new_path(self->cr);
-        cairo_append_path(self->cr, path);
-        cairo_stroke(self->cr);
-    }
-    
-    cairo_new_path(self->cr);
-    cairo_append_path(self->cr, p);
-    cairo_stroke_preserve(self->cr);
-//    cairo_restore(cr);
-    //[self->currentPath removeObjectsInRange:NSMakeRange(0, [self->currentPath count]-1)];
-    
-//    cairo_set_source_rgb(cr, 1, 1, 1);
-//    cairo_paint(cr);
-    
-    // do your drawings with cairo here
-//    cairo_set_source_rgb(cr, 1, 0, 0);
-////    cairo_new_path(cr);
-//    cairo_rectangle(cr, 0, 0, 200, 200);
-//    cairo_fill(cr);
-//    cairo_paint(cr);
-    
-//    cairo_destroy(cr);
-//    cairo_surface_destroy(surface);
+    [self ensureSurface];
+    NotedRect r = {rect.origin.x, rect.origin.y, rect.origin.x+rect.size.width, rect.origin.y+rect.size.height};
+    noted_canvas_draw(self->canvas, self->cr, &r);
 }
+
+void size_callback(NotedCanvas *canvas, unsigned long width, unsigned long height, void *data)
+{
+    CairoDraw *self = (__bridge CairoDraw *)(data);
+    [self setFrameSize:[self frame].size];
+}
+
+void invalidate_callback(NotedCanvas *canvas, NotedRect *r, void *data)
+{
+    CairoDraw *self = (__bridge CairoDraw *)(data);
+    // TODO: Invalidate region only
+    [self setNeedsDisplayInRect:NSMakeRect(r->x1, r->y1, r->x2-r->x1, r->y2-r->y1)];
+}
+
+
 
 - (void)mouseDown:(NSEvent *)event
 {
-//    [[self window] setAcceptsMouseMovedEvents:YES];
-//    [[self window] makeFirstResponder:self];
-//    self->drawing = TRUE;
-//    //    [self->currentPath addObject:[NSValue valueWithPoint:[event locationInWindow]]];
-    self->previousLocation = [event locationInWindow];
-    cairo_new_path(cr);
-    cairo_identity_matrix(cr);
-    cairo_move_to(cr, self->previousLocation.x, self->previousLocation.y);
-    NSLog(@"down");
+    NSPoint p = [event locationInWindow];
+    p = [self convertPoint:p fromView:nil];
+    noted_canvas_mouse(self->canvas, 0, p.x, p.y, [event pressure]);
 }
 
 -(void)mouseDragged:(NSEvent *)event
 {
-//    [self->currentPath addObject:[NSValue valueWithPoint:[event locationInWindow]]];
-//    cairo_new_path(cr);
-//    cairo_set_source_rgb(self->cr, 1, 0, 0);
-//    cairo_move_to(cr, self->previousLocation.x, self->previousLocation.y);
-    self->previousLocation = [event locationInWindow];
-    cairo_line_to(cr, self->previousLocation.x, self->previousLocation.y);
-    [self setNeedsDisplay:YES];
+    NSPoint p = [event locationInWindow];
+    p = [self convertPoint:p fromView:nil];
+    noted_canvas_mouse(self->canvas, 1, p.x, p.y, [event pressure]);
 }
 
 - (void)mouseUp:(NSEvent *)event
 {
-    NSLog(@"up");
-    cairo_path_t *path = cairo_copy_path(cr);
-    [self->paths addObject:[NSValue valueWithPointer:path]];
-//    NSLog(@"paths %@, %lui", self->paths,(unsigned long) [self->paths count]);
-
+    NSPoint p = [event locationInWindow];
+    p = [self convertPoint:p fromView:nil];
+    noted_canvas_mouse(self->canvas, 2, p.x, p.y, [event pressure]);
 }
 
 @end

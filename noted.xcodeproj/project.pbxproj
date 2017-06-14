@@ -14,10 +14,11 @@
 		DDDB57FA1EF04FBF00ED8F0D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */; };
 		DDDB57FD1EF04FBF00ED8F0D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57FB1EF04FBF00ED8F0D /* MainMenu.xib */; };
 		DDDB58061EF0507B00ED8F0D /* CairoDraw.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDB58051EF0507B00ED8F0D /* CairoDraw.m */; };
+		DDDB580C1EF090DC00ED8F0D /* notedcanvas.c in Sources */ = {isa = PBXBuildFile; fileRef = DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		DDDB57EA1EF04FBF00ED8F0D /* noter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDDB57EA1EF04FBF00ED8F0D /* noted.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noted.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDDB57ED1EF04FBF00ED8F0D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DDDB57EE1EF04FBF00ED8F0D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		DDDB57F11EF04FBF00ED8F0D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -29,6 +30,8 @@
 		DDDB57FE1EF04FBF00ED8F0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DDDB58041EF0507B00ED8F0D /* CairoDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CairoDraw.h; sourceTree = "<group>"; };
 		DDDB58051EF0507B00ED8F0D /* CairoDraw.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CairoDraw.m; sourceTree = "<group>"; };
+		DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = notedcanvas.c; sourceTree = "<group>"; };
+		DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = notedcanvas.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +48,8 @@
 		DDDB57E11EF04FBF00ED8F0D = {
 			isa = PBXGroup;
 			children = (
+				DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */,
+				DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */,
 				DDDB58041EF0507B00ED8F0D /* CairoDraw.h */,
 				DDDB58051EF0507B00ED8F0D /* CairoDraw.m */,
 				DDDB57EC1EF04FBF00ED8F0D /* noter */,
@@ -55,7 +60,7 @@
 		DDDB57EB1EF04FBF00ED8F0D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DDDB57EA1EF04FBF00ED8F0D /* noter.app */,
+				DDDB57EA1EF04FBF00ED8F0D /* noted.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -87,9 +92,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		DDDB57E91EF04FBF00ED8F0D /* noter */ = {
+		DDDB57E91EF04FBF00ED8F0D /* noted */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DDDB58011EF04FBF00ED8F0D /* Build configuration list for PBXNativeTarget "noter" */;
+			buildConfigurationList = DDDB58011EF04FBF00ED8F0D /* Build configuration list for PBXNativeTarget "noted" */;
 			buildPhases = (
 				DDDB57E61EF04FBF00ED8F0D /* Sources */,
 				DDDB57E71EF04FBF00ED8F0D /* Frameworks */,
@@ -99,9 +104,9 @@
 			);
 			dependencies = (
 			);
-			name = noter;
+			name = noted;
 			productName = noter;
-			productReference = DDDB57EA1EF04FBF00ED8F0D /* noter.app */;
+			productReference = DDDB57EA1EF04FBF00ED8F0D /* noted.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -120,7 +125,7 @@
 					};
 				};
 			};
-			buildConfigurationList = DDDB57E51EF04FBF00ED8F0D /* Build configuration list for PBXProject "noter" */;
+			buildConfigurationList = DDDB57E51EF04FBF00ED8F0D /* Build configuration list for PBXProject "noted" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -133,7 +138,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DDDB57E91EF04FBF00ED8F0D /* noter */,
+				DDDB57E91EF04FBF00ED8F0D /* noted */,
 			);
 		};
 /* End PBXProject section */
@@ -158,6 +163,7 @@
 			files = (
 				DDDB57F51EF04FBF00ED8F0D /* Document.m in Sources */,
 				DDDB57F21EF04FBF00ED8F0D /* main.m in Sources */,
+				DDDB580C1EF090DC00ED8F0D /* notedcanvas.c in Sources */,
 				DDDB58061EF0507B00ED8F0D /* CairoDraw.m in Sources */,
 				DDDB57EF1EF04FBF00ED8F0D /* AppDelegate.m in Sources */,
 			);
@@ -313,7 +319,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DDDB57E51EF04FBF00ED8F0D /* Build configuration list for PBXProject "noter" */ = {
+		DDDB57E51EF04FBF00ED8F0D /* Build configuration list for PBXProject "noted" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DDDB57FF1EF04FBF00ED8F0D /* Debug */,
@@ -322,7 +328,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DDDB58011EF04FBF00ED8F0D /* Build configuration list for PBXNativeTarget "noter" */ = {
+		DDDB58011EF04FBF00ED8F0D /* Build configuration list for PBXNativeTarget "noted" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DDDB58021EF04FBF00ED8F0D /* Debug */,
