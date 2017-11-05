@@ -78,6 +78,8 @@ void noted_canvas_get_size_request(NotedCanvas *self, unsigned long *width, unsi
 // again to calculate y.
 // p1 and p2 are outputs, and should each be allocated with at
 // least Klen-1 elements.
+// Code converted from the SVG + JavaScript demo found here:
+// https://www.particleincell.com/2012/bezier-splines/
 void calculate_control_points(float *K, int Klen, float *p1, float *p2)
 {
     int n = Klen-1;
