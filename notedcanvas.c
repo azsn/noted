@@ -6,10 +6,13 @@
 #include <stdbool.h>
 
 static float kStrokeWidth = 1.3;
+static float kMinBezierDistanceSq = 20;
+static float kMinBezierAngleRad = 0.7;
 
 //static void append_stroke_point(NotedCanvas *self, float x, float y, float pressure);
 static void update_size_request(NotedCanvas *self);
 static void calculate_control_points(float *p, int n, float *cp1, float *cp2);
+static float angleFromPoints(float ax, float ay, float bx, float by, float cx, float cy);
 static void * array_append(void **arr, void *element, unsigned long elementSize, unsigned long *size, unsigned long *capacity);
 static inline NotedRect * expand_rect(NotedRect *a, float amount);
 static inline bool rects_intersect(NotedRect *a, NotedRect *b);
@@ -88,10 +91,6 @@ void noted_canvas_draw(NotedCanvas *self, cairo_t *cr, NotedRect *rect)
         if(!rects_intersect(rect, expand_rect(&r, 5)))
             continue;
         
-        // TODO: Using only line segments for strokes where there aren't
-        // long jumps between points (often when writing letters) is useful,
-        // but looks bad at very sharp edges. Maybe add some angle detection
-        // for when to use beziers?
         if(s->useBezier && s->numPoints > 2) // Bezier algorithm needs at least 3 points
         {
             float xc1[s->numPoints], yc1[s->numPoints], xc2[s->numPoints], yc2[s->numPoints];
@@ -147,9 +146,21 @@ void noted_canvas_mouse(NotedCanvas *self, int state, float x, float y, float pr
         x = (s->x[i] + x) / 2;
         y = (s->y[i] + y) / 2;
         
+        // Use beziers when there is a long distance between points.
         float dsq = sq_dist(s->x[i], s->y[i], x, y);
-        if(dsq > 10)
+        if(dsq > kMinBezierDistanceSq)
             s->useBezier = true;
+        
+        // Use beziers when there is a sharp turn in the line,
+        // since those don't usually look good with regular lines.
+        if(s->numPoints > 1 && !s->useBezier)
+        {
+            float a = angleFromPoints(s->x[i - 1], s->y[i - 1],
+                                      s->x[i], s->y[i],
+                                      x, y);
+            if(fabs(a) < kMinBezierAngleRad)
+                s->useBezier = true;
+        }
     }
     
     unsigned long pmax = s->maxPoints, psize = s->numPoints;
@@ -250,6 +261,18 @@ static void calculate_control_points(float *p, int n, float *cp1, float *cp2)
         cp2[i] = (2 * p[i+1]) - cp1[i+1];
     
     cp2[n-1] = 0.5 * (p[n] + cp1[n-1]);
+}
+
+// https://stackoverflow.com/a/3487062/161429
+static float angleFromPoints(float ax, float ay, float bx, float by, float cx, float cy)
+{
+    float abx = bx - ax;
+    float aby = by - ay;
+    float cbx = bx - cx;
+    float cby = by - cy;
+    float dot = (abx * cbx + aby * cby); // dot product
+    float cross = (abx * cby - aby * cbx); // cross product
+    return atan2(cross, dot);
 }
 
 static void * array_append(void **arr, void *element, unsigned long elementSize, unsigned long *size, unsigned long *capacity)
