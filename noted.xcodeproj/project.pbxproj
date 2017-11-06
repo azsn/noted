@@ -52,7 +52,7 @@
 				DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */,
 				DDDB58041EF0507B00ED8F0D /* CairoDraw.h */,
 				DDDB58051EF0507B00ED8F0D /* CairoDraw.m */,
-				DDDB57EC1EF04FBF00ED8F0D /* noter */,
+				DDDB57EC1EF04FBF00ED8F0D /* noted */,
 				DDDB57EB1EF04FBF00ED8F0D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,7 +65,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		DDDB57EC1EF04FBF00ED8F0D /* noter */ = {
+		DDDB57EC1EF04FBF00ED8F0D /* noted */ = {
 			isa = PBXGroup;
 			children = (
 				DDDB57ED1EF04FBF00ED8F0D /* AppDelegate.h */,
@@ -78,7 +78,7 @@
 				DDDB57FE1EF04FBF00ED8F0D /* Info.plist */,
 				DDDB57F01EF04FBF00ED8F0D /* Supporting Files */,
 			);
-			path = noter;
+			path = noted;
 			sourceTree = "<group>";
 		};
 		DDDB57F01EF04FBF00ED8F0D /* Supporting Files */ = {
@@ -116,7 +116,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0800;
-				ORGANIZATIONNAME = "zelbrium";
+				ORGANIZATIONNAME = zelbrium;
 				TargetAttributes = {
 					DDDB57E91EF04FBF00ED8F0D = {
 						CreatedOnToolsVersion = 8.0;
@@ -285,14 +285,14 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = R8LH6JD7C6;
 				HEADER_SEARCH_PATHS = /usr/local/Cellar/cairo/1.14.8/include;
-				INFOPLIST_FILE = noter/Info.plist;
+				INFOPLIST_FILE = noted/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/cairo/1.14.8/lib;
 				OTHER_LDFLAGS = (
 					"-lcairo-gobject",
 					"-lcairo",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zelbrium.noter;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zelbrium.noted;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -304,14 +304,14 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = R8LH6JD7C6;
 				HEADER_SEARCH_PATHS = /usr/local/Cellar/cairo/1.14.8/include;
-				INFOPLIST_FILE = noter/Info.plist;
+				INFOPLIST_FILE = noted/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/cairo/1.14.8/lib;
 				OTHER_LDFLAGS = (
 					"-lcairo-gobject",
 					"-lcairo",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zelbrium.noter;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zelbrium.noted;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -335,6 +335,7 @@
 				DDDB58031EF04FBF00ED8F0D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
