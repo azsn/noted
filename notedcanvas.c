@@ -3,7 +3,6 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include <stdbool.h>
 
 static float kStrokeWidth = 1.3;
 static float kMinBezierDistanceSq = 20;
@@ -32,6 +31,7 @@ struct NotedCanvas_
     void *callbackData;
     unsigned long npages;
     unsigned long numStrokes, maxStrokes;
+    unsigned long lastStroke; // Used for undo
     Stroke *strokes;
     Stroke *currentStroke;
 };
@@ -76,7 +76,7 @@ void noted_canvas_draw(NotedCanvas *self, cairo_t *cr)
     
 //    clock_t begin = clock();
     cairo_new_path(cr);
-    for(unsigned long i = 0; i < self->numStrokes; ++i)
+    for(unsigned long i = 0; i < self->lastStroke; ++i)
     {
         Stroke *s = &self->strokes[i];
         
@@ -124,11 +124,25 @@ void noted_canvas_mouse(NotedCanvas *self, int state, float x, float y, float pr
     
     if(state == 0 || !s)
     {
+        // If we're not at the most recent stroke (there are redos available)
+        // then erase the future strokes and replace them with this new one.
+        if(self->lastStroke != self->numStrokes)
+        {
+            for(unsigned long i = self->lastStroke; i < self->numStrokes; ++i)
+            {
+                free(self->strokes[i].x);
+                free(self->strokes[i].y);
+            }
+            
+            self->numStrokes = self->lastStroke;
+        }
+        
         s = array_append((void **)&self->strokes, NULL, sizeof(Stroke), &self->numStrokes, &self->maxStrokes);
         self->currentStroke = s;
         s->bounds.x1 = s->bounds.x2 = x;
         s->bounds.y1 = s->bounds.y2 = y;
         s->useBezier = false;
+        ++self->lastStroke;
     }
     else
     {
@@ -180,6 +194,30 @@ void noted_canvas_mouse(NotedCanvas *self, int state, float x, float y, float pr
         expand_rect(&r, kStrokeWidth);
         self->invalidateCallback(self, &r, self->npages, self->callbackData);
     }
+}
+
+bool noted_canvas_undo(NotedCanvas *self)
+{
+    if(self->lastStroke <= 0 || self->currentStroke != NULL)
+        return false;
+
+    NCRect r = self->strokes[self->lastStroke - 1].bounds;
+    expand_rect(&r, kStrokeWidth);
+    --self->lastStroke;
+    self->invalidateCallback(self, &r, self->npages, self->callbackData);
+    return true;
+}
+
+bool noted_canvas_redo(NotedCanvas *self)
+{
+    if(self->lastStroke >= self->numStrokes || self->currentStroke != NULL)
+        return false;
+    
+    ++self->lastStroke;
+    NCRect r = self->strokes[self->lastStroke - 1].bounds;
+    expand_rect(&r, kStrokeWidth);
+    self->invalidateCallback(self, &r, self->npages, self->callbackData);
+    return true;
 }
 
 // Matches bezier curves to the given points. This function takes

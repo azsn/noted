@@ -109,11 +109,25 @@ void invalidate_callback(NotedCanvas *canvas, NCRect *r, unsigned long npages, v
     noted_canvas_mouse(self->canvas, 1, p.x, p.y, [event pressure]);
 }
 
+- (void)redoevent:(void *)v
+{
+    noted_canvas_redo(self->canvas);
+    [[self undoManager] registerUndoWithTarget:self selector:@selector(undoevent:) object:nil];
+}
+
+- (void)undoevent:(void *)v
+{
+    noted_canvas_undo(self->canvas);
+    [[self undoManager] registerUndoWithTarget:self selector:@selector(redoevent:) object:nil];
+}
+
 - (void)mouseUp:(NSEvent *)event
 {
     NSPoint p = [event locationInWindow];
     p = [self convertPoint:p fromView:nil];
     noted_canvas_mouse(self->canvas, 2, p.x, p.y, [event pressure]);
+    
+    [[self undoManager] registerUndoWithTarget:self selector:@selector(undoevent:) object:nil];
 }
 
 @end

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <cairo/cairo.h>
+#include <stdbool.h>
 
 typedef struct NotedCanvas_ NotedCanvas;
 
@@ -40,5 +41,15 @@ void noted_canvas_draw(NotedCanvas *canvas, cairo_t *cr);
  * Call on a mouse event. State: 0 (mouse down), 1 (mouse drag), 2 (mouse up)
  */
 void noted_canvas_mouse(NotedCanvas *canvas, int state, float x, float y, float pressure);
+
+/*
+ * Undo. Returns true on success.
+ */
+bool noted_canvas_undo(NotedCanvas *canvas);
+
+/*
+ * Redo. Returns true on success.
+ */
+bool noted_canvas_redo(NotedCanvas *canvas);
 
 #endif /* notedcanvas_h */
