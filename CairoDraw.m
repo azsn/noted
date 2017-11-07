@@ -3,12 +3,15 @@
 #include <cairo/cairo-quartz.h>
 #include "notedcanvas.h"
 
+static float kPageSize = 500.0;
+
 @implementation CairoDraw
 {
     NSSize surfaceSize;
     cairo_surface_t *surface;
     cairo_t *cr;
     NotedCanvas *canvas;
+    unsigned long npages;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder
@@ -16,7 +19,8 @@
     self = [super initWithCoder:coder];
     if(self)
     {
-        self->canvas = noted_canvas_new(size_callback, invalidate_callback, (__bridge void *)(self));
+        self->canvas = noted_canvas_new(invalidate_callback, (__bridge void *)(self));
+        self->npages = 0;
     }
     return self;
 }
@@ -43,23 +47,6 @@
 - (BOOL)isFlipped
 {
     return YES;
-}
-
-//- (BOOL)isOpaque
-//{
-//    return YES;
-//}
-
-- (void)setFrameSize:(NSSize)rect
-{
-    unsigned long w, h;
-    noted_canvas_get_size_request(self->canvas, &w, &h);
-    if(rect.width < w)
-        rect.width = w;
-    if(rect.height < h)
-        rect.height = h;
-    
-    [super setFrameSize:rect];
 }
 
 - (bool)ensureSurface
@@ -95,24 +82,18 @@
 {
     if(![self ensureSurface])
         return;
-    NotedRect r = {rect.origin.x, rect.origin.y, rect.origin.x+rect.size.width, rect.origin.y+rect.size.height};
-    noted_canvas_draw(self->canvas, self->cr, &r);
+    cairo_rectangle(self->cr, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+    cairo_clip(self->cr);
+    noted_canvas_draw(self->canvas, self->cr);
+    cairo_reset_clip(self->cr);
 }
 
-void size_callback(NotedCanvas *canvas, unsigned long width, unsigned long height, void *data)
-{
-    CairoDraw *self = (__bridge CairoDraw *)(data);
-    [self setFrameSize:[self frame].size];
-}
-
-void invalidate_callback(NotedCanvas *canvas, NotedRect *r, void *data)
+void invalidate_callback(NotedCanvas *canvas, NCRect *r, unsigned long npages, void *data)
 {
     CairoDraw *self = (__bridge CairoDraw *)(data);
     //[self setNeedsDisplay:true];
     [self setNeedsDisplayInRect:NSMakeRect(r->x1, r->y1, r->x2-r->x1, r->y2-r->y1)];
 }
-
-
 
 - (void)mouseDown:(NSEvent *)event
 {

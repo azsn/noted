@@ -9,34 +9,28 @@ static float kStrokeWidth = 1.3;
 static float kMinBezierDistanceSq = 20;
 static float kMinBezierAngleRad = 0.7;
 
-//static void append_stroke_point(NotedCanvas *self, float x, float y, float pressure);
-static void update_size_request(NotedCanvas *self);
 static void calculate_control_points(float *p, int n, float *cp1, float *cp2);
-static float angleFromPoints(float ax, float ay, float bx, float by, float cx, float cy);
+static float angle_from_points(float ax, float ay, float bx, float by, float cx, float cy);
 static void * array_append(void **arr, void *element, unsigned long elementSize, unsigned long *size, unsigned long *capacity);
-static inline NotedRect * expand_rect(NotedRect *a, float amount);
-static inline bool rects_intersect(NotedRect *a, NotedRect *b);
-static inline void rect_expand_by_point(NotedRect *a, float x, float y);
+static inline NCRect * expand_rect(NCRect *a, float amount);
+static inline bool rects_intersect(NCRect *a, NCRect *b);
+static inline void rect_expand_by_point(NCRect *a, float x, float y);
 static inline float sq_dist(float x1, float y1, float x2, float y2);
 
 typedef struct
 {
-    NotedRect bounds;
-    bool useBezier; // Set true if there are any points that are far away from their previous point
-    unsigned long numPoints, maxPoints;
+    NCRect bounds;
     float *x; // Array of xs
     float *y; // Array of ys
+    unsigned long numPoints, maxPoints;
+    bool useBezier; // Set true if there are any points that are far away from their previous point
 } Stroke;
 
 struct NotedCanvas_
 {
-    NotedCanvasSizeCallback sizeCallback;
-    NotedCanvasInvalidateCallback invalidateCallback;
+    NCInvalidateCallback invalidateCallback;
     void *callbackData;
-    
-    unsigned long x, y; // Offset from actual surface origin to apparent origin
-    unsigned long width, height; // Size request
-    
+    unsigned long npages;
     unsigned long numStrokes, maxStrokes;
     Stroke *strokes;
     Stroke *currentStroke;
@@ -44,17 +38,15 @@ struct NotedCanvas_
 
 
 
-NotedCanvas * noted_canvas_new(NotedCanvasSizeCallback sizeCallback, NotedCanvasInvalidateCallback invalidateCallback, void *data)
+NotedCanvas * noted_canvas_new(NCInvalidateCallback invalidateCallback, void *data)
 {
-    if(!sizeCallback || !invalidateCallback)
+    if(!invalidateCallback)
         return NULL;
     
-    NotedCanvas *self = malloc(sizeof(NotedCanvas));
-    memset(self, 0, sizeof(NotedCanvas));
-    self->sizeCallback = sizeCallback;
+    NotedCanvas *self = calloc(1, sizeof(NotedCanvas));
     self->invalidateCallback = invalidateCallback;
     self->callbackData = data;
-    
+    self->npages = 1;
     return self;
 }
 
@@ -69,26 +61,29 @@ void noted_canvas_destroy(NotedCanvas *self)
     free(self);
 }
 
-void noted_canvas_get_size_request(NotedCanvas *self, unsigned long *width, unsigned long *height)
+void noted_canvas_draw(NotedCanvas *self, cairo_t *cr)
 {
-    *width = self->width;
-    *height = self->height;
-}
-
-void noted_canvas_draw(NotedCanvas *self, cairo_t *cr, NotedRect *rect)
-{
+    NCRect clipRect;
+    
+    {
+        double x1, y1, x2, y2;
+        cairo_clip_extents(cr, &x1, &y1, &x2, &y2);
+        clipRect.x1 = x1;
+        clipRect.y1 = y1;
+        clipRect.x2 = x2;
+        clipRect.y2 = y2;
+    }
+    
 //    clock_t begin = clock();
     cairo_new_path(cr);
     for(unsigned long i = 0; i < self->numStrokes; ++i)
     {
         Stroke *s = &self->strokes[i];
         
-        // TODO: Expand the rect by width of stroke, so that the intersection
+        // Expand the rect by width of stroke, so that the intersection
         // calculation includes the outside edge of the stroke.
-        // TODO: This still doesn't work quite right, especially when there
-        // are a lot of strokes all in one area and drawing fast.
-        NotedRect r = s->bounds;
-        if(!rects_intersect(rect, expand_rect(&r, 5)))
+        NCRect r = s->bounds;
+        if(!rects_intersect(&clipRect, expand_rect(&r, kStrokeWidth)))
             continue;
         
         if(s->useBezier && s->numPoints > 2) // Bezier algorithm needs at least 3 points
@@ -155,7 +150,7 @@ void noted_canvas_mouse(NotedCanvas *self, int state, float x, float y, float pr
         // since those don't usually look good with regular lines.
         if(s->numPoints > 1 && !s->useBezier)
         {
-            float a = angleFromPoints(s->x[i - 1], s->y[i - 1],
+            float a = angle_from_points(s->x[i - 1], s->y[i - 1],
                                       s->x[i], s->y[i],
                                       x, y);
             if(fabs(a) < kMinBezierAngleRad)
@@ -172,41 +167,19 @@ void noted_canvas_mouse(NotedCanvas *self, int state, float x, float y, float pr
     if(state == 2)
         self->currentStroke = NULL;
     
-    update_size_request(self);
-    
     if(s->numPoints > 1)
     {
-        NotedRect r = s->bounds;
-        expand_rect(&r, 5);
-        self->invalidateCallback(self, &r, self->callbackData);
+        // Invalidate the rect containing the past few points
+        // Past few points are needed, since beziers shift
+        // slightly as they are fitted to the points. Also
+        // helps regular lines, but I'm not totally sure why.
+        NCRect r = {x, y, x, y}; // x == s->x[s->numPoints - 1]
+        for(int i = 2; i <= 4 && s->numPoints >= i; ++i)
+            rect_expand_by_point(&r, s->x[s->numPoints - i], s->y[s->numPoints - i]);
+        // Plus a little extra for stroke width
+        expand_rect(&r, kStrokeWidth);
+        self->invalidateCallback(self, &r, self->npages, self->callbackData);
     }
-}
-
-static void update_size_request(NotedCanvas *self)
-{
-    unsigned long prevW = self->width;
-    unsigned long prevH = self->height;
-    self->width = 150;
-    self->height = 150;
-    if(self->numStrokes == 0)
-    {
-        self->sizeCallback(self, self->width, self->height, self->callbackData);
-        return;
-    }
-    
-    Stroke *s = &self->strokes[0];
-    NotedRect rect = s->bounds;
-    
-    for(unsigned long i=1;i<self->numStrokes;++i)
-    {
-        Stroke *s = &self->strokes[i];
-        rect_expand_by_point(&rect, s->bounds.x1, s->bounds.y1);
-        rect_expand_by_point(&rect, s->bounds.x2, s->bounds.y2);
-    }
-    self->width += rect.x2;
-    self->height += rect.y2;
-    if(prevW != self->width || prevH != self->height)
-        self->sizeCallback(self, self->width, self->height, self->callbackData);
 }
 
 // Matches bezier curves to the given points. This function takes
@@ -264,7 +237,7 @@ static void calculate_control_points(float *p, int n, float *cp1, float *cp2)
 }
 
 // https://stackoverflow.com/a/3487062/161429
-static float angleFromPoints(float ax, float ay, float bx, float by, float cx, float cy)
+static float angle_from_points(float ax, float ay, float bx, float by, float cx, float cy)
 {
     float abx = bx - ax;
     float aby = by - ay;
@@ -295,7 +268,7 @@ static void * array_append(void **arr, void *element, unsigned long elementSize,
     return pos;
 }
 
-static inline NotedRect * expand_rect(NotedRect *a, float amount)
+static inline NCRect * expand_rect(NCRect *a, float amount)
 {
     a->x1 -= amount;
     a->x2 += amount;
@@ -304,12 +277,12 @@ static inline NotedRect * expand_rect(NotedRect *a, float amount)
     return a;
 }
 
-static inline bool rects_intersect(NotedRect *a, NotedRect *b)
+static inline bool rects_intersect(NCRect *a, NCRect *b)
 {
     return a->x1 < b->x2 && a->x2 > b->x1 && a->y1 < b->y2 && a->y2 > b->y1;
 }
 
-static inline void rect_expand_by_point(NotedRect *a, float x, float y)
+static inline void rect_expand_by_point(NCRect *a, float x, float y)
 {
     if(x > a->x2)
         a->x2 = x;
