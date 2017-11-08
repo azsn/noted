@@ -4,18 +4,6 @@
 #include <math.h>
 #include <time.h>
 
-static float kStrokeWidth = 1.3;
-static float kMinBezierDistanceSq = 20;
-static float kMinBezierAngleRad = 0.7;
-
-static void calculate_control_points(float *p, int n, float *cp1, float *cp2);
-static float angle_from_points(float ax, float ay, float bx, float by, float cx, float cy);
-static void * array_append(void **arr, void *element, unsigned long elementSize, unsigned long *size, unsigned long *capacity);
-static inline NCRect * expand_rect(NCRect *a, float amount);
-static inline bool rects_intersect(NCRect *a, NCRect *b);
-static inline void rect_expand_by_point(NCRect *a, float x, float y);
-static inline float sq_dist(float x1, float y1, float x2, float y2);
-
 typedef struct
 {
     NCRect bounds;
@@ -34,11 +22,30 @@ struct NotedCanvas_
     unsigned long lastStroke; // Used for undo
     Stroke *strokes;
     Stroke *currentStroke;
+    float eraserPrevX, eraserPrevY;
 };
 
 
+static float kStrokeWidth = 1.3;
+static float kEraserWidth = 3;
+static float kMinBezierDistanceSq = 20;
+static float kMinBezierAngleRad = 0.7;
 
-NotedCanvas * noted_canvas_new(NCInvalidateCallback invalidateCallback, void *data)
+static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y, float pressure);
+static void draw_stroke(cairo_t *cr, Stroke *s);
+static void calculate_control_points(float *p, int n, float *cp1, float *cp2);
+static float angle_from_points(float ax, float ay, float bx, float by, float cx, float cy);
+static void clear_redos(NotedCanvas *self);
+static void free_stroke(Stroke *s);
+static void * array_append(void **arr, void *element, unsigned long elementSize, unsigned long *size, unsigned long *capacity);
+static void array_remove(void *arr, unsigned long index, unsigned long elementSize, unsigned long *size);
+static inline NCRect * expand_rect(NCRect *a, float amount);
+static inline bool rects_intersect(NCRect *a, NCRect *b);
+static inline void rect_expand_by_point(NCRect *a, float x, float y);
+static inline float sq_dist(float x1, float y1, float x2, float y2);
+
+
+NotedCanvas * noted_canvas_new(NCInvalidateCallback invalidateCallback, float pageHeight, void *data)
 {
     if(!invalidateCallback)
         return NULL;
@@ -52,11 +59,8 @@ NotedCanvas * noted_canvas_new(NCInvalidateCallback invalidateCallback, void *da
 
 void noted_canvas_destroy(NotedCanvas *self)
 {
-    for(unsigned long i=0;i<self->numStrokes;++i)
-    {
-        free(self->strokes[i].x);
-        free(self->strokes[i].y);
-    }
+    for(unsigned long i = 0; i < self->numStrokes; ++i)
+        free_stroke(&self->strokes[i]);
     free(self->strokes);
     free(self);
 }
@@ -86,56 +90,26 @@ void noted_canvas_draw(NotedCanvas *self, cairo_t *cr)
         if(!rects_intersect(&clipRect, expand_rect(&r, kStrokeWidth)))
             continue;
         
-        if(s->useBezier && s->numPoints > 2) // Bezier algorithm needs at least 3 points
-        {
-            float xc1[s->numPoints], yc1[s->numPoints], xc2[s->numPoints], yc2[s->numPoints];
-            calculate_control_points(s->x, (int)s->numPoints, xc1, xc2);
-            calculate_control_points(s->y, (int)s->numPoints, yc1, yc2);
-            
-            cairo_new_path(cr);
-            for(int j=0;j<s->numPoints-1;++j)
-            {
-                cairo_move_to(cr, s->x[j], s->y[j]);
-                cairo_curve_to(cr, xc1[j], yc1[j], xc2[j], yc2[j], s->x[j+1], s->y[j+1]);
-                cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-                cairo_set_line_width(cr, kStrokeWidth);
-                cairo_stroke(cr);
-            }
-        }
-        else
-        {
-            cairo_new_path(cr);
-            cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-            cairo_set_line_width(cr, kStrokeWidth);
-            cairo_move_to(cr, s->x[0], s->y[0]);
-            for(unsigned long j = 1; j < s->numPoints; ++j)
-                cairo_line_to(cr, s->x[j], s->y[j]);
-            cairo_stroke(cr);
-        }
+        draw_stroke(cr, s);
     }
 //    clock_t end = clock();
 //    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 //    printf("time: %li, %fs\n", end-begin, time_spent);
 }
 
-void noted_canvas_mouse(NotedCanvas *self, int state, float x, float y, float pressure)
+void noted_canvas_input(NotedCanvas *self, NCInputState state, float x, float y, float pressure)
 {
     Stroke *s = self->currentStroke;
     
-    if(state == 0 || !s)
+    if(state == kNCEraserDown || state == kNCEraserUp || state == kNCEraserDrag)
     {
-        // If we're not at the most recent stroke (there are redos available)
-        // then erase the future strokes and replace them with this new one.
-        if(self->lastStroke != self->numStrokes)
-        {
-            for(unsigned long i = self->lastStroke; i < self->numStrokes; ++i)
-            {
-                free(self->strokes[i].x);
-                free(self->strokes[i].y);
-            }
-            
-            self->numStrokes = self->lastStroke;
-        }
+        eraser_input(self, state, x, y, pressure);
+        return;
+    }
+    
+    if(state == kNCPenDown || !s)
+    {
+        clear_redos(self);
         
         s = array_append((void **)&self->strokes, NULL, sizeof(Stroke), &self->numStrokes, &self->maxStrokes);
         self->currentStroke = s;
@@ -178,7 +152,7 @@ void noted_canvas_mouse(NotedCanvas *self, int state, float x, float y, float pr
     
     rect_expand_by_point(&s->bounds, x, y);
 
-    if(state == 2)
+    if(state == kNCPenUp)
         self->currentStroke = NULL;
     
     if(s->numPoints > 1)
@@ -196,6 +170,7 @@ void noted_canvas_mouse(NotedCanvas *self, int state, float x, float y, float pr
     }
 }
 
+// TODO: Undo doesn't work with erasing.
 bool noted_canvas_undo(NotedCanvas *self)
 {
     if(self->lastStroke <= 0 || self->currentStroke != NULL)
@@ -218,6 +193,160 @@ bool noted_canvas_redo(NotedCanvas *self)
     expand_rect(&r, kStrokeWidth);
     self->invalidateCallback(self, &r, self->npages, self->callbackData);
     return true;
+}
+
+// Erasing uses alpha overlap to detect when the user has
+// "drawn" an erasing line over a stroke. To prevent skipping
+// over strokes when the eraser is moving fast, the coordinate
+// coordinate is saved after each input and used in the next
+// input to draw an erase line between the two.
+static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y, float pressure)
+{
+    if(state == kNCEraserDown)
+    {
+        self->eraserPrevX = NAN;
+        self->eraserPrevY = NAN;
+    }
+
+    // Create a rect which bounds the erasing path.
+    // This includes the current erasing point, and
+    // the line from it to the previous erasing point
+    // if one exists.
+    NCRect eraserRect = {x, y, x, y};
+    float eraserToX = x, eraserToY = y;
+    if(!isnan(self->eraserPrevX) && !isnan(self->eraserPrevY))
+    {
+        rect_expand_by_point(&eraserRect, self->eraserPrevX, self->eraserPrevY);
+        eraserToX = self->eraserPrevX;
+        eraserToY = self->eraserPrevY;
+    }
+    expand_rect(&eraserRect, kEraserWidth / 2.0);
+    eraserRect.x1 = floor(eraserRect.x1);
+    eraserRect.y1 = floor(eraserRect.y1);
+    eraserRect.x2 = ceil(eraserRect.x2);
+    eraserRect.y2 = ceil(eraserRect.y2);
+    
+    int srwidth = eraserRect.x2 - eraserRect.x1;
+    int srheight = eraserRect.y2 - eraserRect.y1;
+    
+    // Don't create a surface until we know there is
+    // at least one stroke to check for erasing.
+    cairo_surface_t *sr = NULL;
+    cairo_t *cr = NULL;
+    unsigned char *data = NULL;
+    unsigned long datalen = 0;
+    
+    for(unsigned long i = 0; i < self->lastStroke; ++i)
+    {
+        // Don't bother if the stroke isn't in the eraser rect
+        Stroke *s = &self->strokes[i];
+        NCRect r = s->bounds;
+        if(!rects_intersect(&eraserRect, expand_rect(&r, kStrokeWidth)))
+            continue;
+        
+        if(!sr)
+        {
+            // Create a memory surface the size of the eraser line
+            sr = cairo_image_surface_create(CAIRO_FORMAT_A8, srwidth, srheight);
+            if(!sr || cairo_surface_status(sr) != CAIRO_STATUS_SUCCESS)
+                return;
+            cr = cairo_create(sr);
+            if(!cr || cairo_status(cr) != CAIRO_STATUS_SUCCESS)
+                return;
+            cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE); // No need for quality
+            cairo_set_operator(cr, CAIRO_OPERATOR_ADD); // Easier testing of overlap
+            
+            // Translate painting region to where the surface is
+            cairo_translate(cr, -eraserRect.x1, -eraserRect.y1);
+            
+            data = cairo_image_surface_get_data(sr);
+            datalen = cairo_image_surface_get_stride(sr) * srheight;
+        }
+        
+        // Clear the surface
+        memset(data, 0, datalen);
+        cairo_surface_mark_dirty(sr);
+        
+        cairo_save(cr);
+        
+        // Draw the stroke, offset by the position of the eraser
+        // Half alpha
+        cairo_push_group(cr);
+        draw_stroke(cr, s);
+        cairo_pop_group_to_source(cr);
+        cairo_paint_with_alpha(cr, 0.5);
+        
+        // Draw eraser, half alpha
+        cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+        cairo_set_line_width(cr, kEraserWidth);
+        cairo_move_to(cr, x, y);
+        cairo_line_to(cr, eraserToX, eraserToY);
+        cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
+        cairo_stroke(cr);
+        
+        cairo_restore(cr);
+        
+        cairo_surface_flush(sr);
+        
+        // If there is any overlap in alpha (pixel is 0xFF), the
+        // eraser hit the stroke and the stroke should be removed.
+        for(unsigned long j = 0; j < datalen; ++j)
+        {
+            if(data[j] == 0xFF)
+            {
+                NCRect r = s->bounds;
+                expand_rect(&r, kStrokeWidth);
+                
+                clear_redos(self);
+                free_stroke(s);
+                array_remove(self->strokes, i, sizeof(Stroke), &self->numStrokes);
+                self->invalidateCallback(self, &r, self->npages, self->callbackData);
+                self->lastStroke = self->numStrokes;
+                --i;
+                break;
+            }
+        }
+    }
+    
+    if(state == kNCEraserUp)
+    {
+        self->eraserPrevX = NAN;
+        self->eraserPrevY = NAN;
+    }
+    else
+    {
+        self->eraserPrevX = x;
+        self->eraserPrevY = y;
+    }
+    if(cr)
+        cairo_destroy(cr);
+    if(sr)
+        cairo_surface_destroy(sr);
+}
+
+static void draw_stroke(cairo_t *cr, Stroke *s)
+{
+    cairo_new_path(cr);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    cairo_set_line_width(cr, kStrokeWidth);
+    cairo_move_to(cr, s->x[0], s->y[0]);
+    
+    if(s->useBezier && s->numPoints > 2) // Bezier algorithm needs at least 3 points
+    {
+        float xc1[s->numPoints], yc1[s->numPoints], xc2[s->numPoints], yc2[s->numPoints];
+        calculate_control_points(s->x, (int)s->numPoints, xc1, xc2);
+        calculate_control_points(s->y, (int)s->numPoints, yc1, yc2);
+        
+        for(int j = 0; j < s->numPoints - 1; ++j)
+            cairo_curve_to(cr, xc1[j], yc1[j], xc2[j], yc2[j], s->x[j+1], s->y[j+1]);
+    }
+    else
+    {
+        for(unsigned long j = 1; j < s->numPoints; ++j)
+            cairo_line_to(cr, s->x[j], s->y[j]);
+    }
+    
+    cairo_stroke(cr);
 }
 
 // Matches bezier curves to the given points. This function takes
@@ -286,6 +415,19 @@ static float angle_from_points(float ax, float ay, float bx, float by, float cx,
     return atan2(cross, dot);
 }
 
+static void clear_redos(NotedCanvas *self)
+{
+    for(unsigned long i = self->lastStroke; i < self->numStrokes; ++i)
+        free_stroke(&self->strokes[i]);
+    self->numStrokes = self->lastStroke;
+}
+
+static void free_stroke(Stroke *s)
+{
+    free(s->x);
+    free(s->y);
+}
+
 static void * array_append(void **arr, void *element, unsigned long elementSize, unsigned long *size, unsigned long *capacity)
 {
     if((*size + 1) > *capacity)
@@ -306,6 +448,20 @@ static void * array_append(void **arr, void *element, unsigned long elementSize,
     return pos;
 }
 
+static void array_remove(void *arr, unsigned long index, unsigned long elementSize, unsigned long *size)
+{
+    if(index >= *size)
+        return;
+    // If we're not removing the last element,
+    // shift everything down by 1.
+    if(index < *size - 1)
+    {
+        void *p = arr + (index * elementSize);
+        memmove(p, p + elementSize, (*size - index - 1) * elementSize);
+    }
+    (*size) --;
+}
+
 static inline NCRect * expand_rect(NCRect *a, float amount)
 {
     a->x1 -= amount;
@@ -319,6 +475,11 @@ static inline bool rects_intersect(NCRect *a, NCRect *b)
 {
     return a->x1 < b->x2 && a->x2 > b->x1 && a->y1 < b->y2 && a->y2 > b->y1;
 }
+
+//static inline bool point_in_rect(NCRect *r, float x, float y)
+//{
+//    return x > r->x1 && x < r->x2 && y > r->y1 && y < r->y2;
+//}
 
 static inline void rect_expand_by_point(NCRect *a, float x, float y)
 {
