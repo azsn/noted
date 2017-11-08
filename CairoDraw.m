@@ -12,7 +12,7 @@ static float kPageSize = 500.0;
     cairo_t *cr;
     NotedCanvas *canvas;
     unsigned long npages;
-    bool eraser;
+    NCInputTool currentTool;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder
@@ -22,7 +22,7 @@ static float kPageSize = 500.0;
     {
         self->canvas = noted_canvas_new(invalidate_callback, kPageSize, (__bridge void *)(self));
         self->npages = 0;
-        self->eraser = false;
+        self->currentTool = kNCPenTool;
     }
     return self;
 }
@@ -107,57 +107,43 @@ void invalidate_callback(NotedCanvas *canvas, NCRect *r, unsigned long npages, v
 {
     NSPoint p = [event locationInWindow];
     p = [self convertPoint:p fromView:nil];
-    
-    NCInputState state = [self isEraseEvent:event] ? kNCEraserDown : kNCPenDown;
-    noted_canvas_input(self->canvas, state, p.x, p.y, [event pressure]);
+    noted_canvas_input(self->canvas, kNCToolDown, self->currentTool, p.x, p.y, [event pressure]);
     [super mouseDown: event];
-}
-
--(void)tabletProximity:(NSEvent *)event
-{
-    self->eraser = ([event pointingDeviceType] == NSPointingDeviceTypeEraser);
 }
 
 -(void)mouseDragged:(NSEvent *)event
 {
     NSPoint p = [event locationInWindow];
     p = [self convertPoint:p fromView:nil];
-    NCInputState state = [self isEraseEvent:event] ? kNCEraserDrag : kNCPenDrag;
-    noted_canvas_input(self->canvas, state, p.x, p.y, [event pressure]);
+    noted_canvas_input(self->canvas, kNCToolDrag, self->currentTool, p.x, p.y, [event pressure]);
     [super mouseDragged:event];
-}
-
-- (void)redoevent:(void *)v
-{
-    noted_canvas_redo(self->canvas);
-    [[self undoManager] registerUndoWithTarget:self selector:@selector(undoevent:) object:nil];
-}
-
-- (void)undoevent:(void *)v
-{
-    noted_canvas_undo(self->canvas);
-    [[self undoManager] registerUndoWithTarget:self selector:@selector(redoevent:) object:nil];
-}
-
-- (bool)isEraseEvent:(NSEvent *)event
-{
-    if(self->eraser || [event pointingDeviceType] == NSPointingDeviceTypeEraser)
-        return true;
-    
-    NSUInteger flags = [event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask;
-    return flags == NSShiftKeyMask;
 }
 
 - (void)mouseUp:(NSEvent *)event
 {
     NSPoint p = [event locationInWindow];
     p = [self convertPoint:p fromView:nil];
-    
-    NCInputState state = [self isEraseEvent:event] ? kNCEraserUp : kNCPenUp;
-    noted_canvas_input(self->canvas, state, p.x, p.y, [event pressure]);
-    
-    [[self undoManager] registerUndoWithTarget:self selector:@selector(undoevent:) object:nil];
+    noted_canvas_input(self->canvas, kNCToolUp, self->currentTool, p.x, p.y, [event pressure]);
+    [[self undoManager] registerUndoWithTarget:self selector:@selector(onUndo:) object:nil];
     [super mouseUp:event];
 }
+
+-(void)tabletProximity:(NSEvent *)event
+{
+    self->currentTool = ([event pointingDeviceType] == NSPointingDeviceTypeEraser) ? kNCEraserTool : kNCPenTool;
+}
+
+- (void)onRedo:(void *)v
+{
+    noted_canvas_redo(self->canvas);
+    [[self undoManager] registerUndoWithTarget:self selector:@selector(onUndo:) object:nil];
+}
+
+- (void)onUndo:(void *)v
+{
+    noted_canvas_undo(self->canvas);
+    [[self undoManager] registerUndoWithTarget:self selector:@selector(onRedo:) object:nil];
+}
+
 
 @end

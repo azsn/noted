@@ -97,17 +97,17 @@ void noted_canvas_draw(NotedCanvas *self, cairo_t *cr)
 //    printf("time: %li, %fs\n", end-begin, time_spent);
 }
 
-void noted_canvas_input(NotedCanvas *self, NCInputState state, float x, float y, float pressure)
+void noted_canvas_input(NotedCanvas *self, NCInputState state, NCInputTool tool, float x, float y, float pressure)
 {
     Stroke *s = self->currentStroke;
     
-    if(state == kNCEraserDown || state == kNCEraserUp || state == kNCEraserDrag)
+    if(tool == kNCEraserTool)
     {
         eraser_input(self, state, x, y, pressure);
         return;
     }
     
-    if(state == kNCPenDown || !s)
+    if(state == kNCToolDown || !s)
     {
         clear_redos(self);
         
@@ -152,7 +152,7 @@ void noted_canvas_input(NotedCanvas *self, NCInputState state, float x, float y,
     
     rect_expand_by_point(&s->bounds, x, y);
 
-    if(state == kNCPenUp)
+    if(state == kNCToolUp)
         self->currentStroke = NULL;
     
     if(s->numPoints > 1)
@@ -202,7 +202,7 @@ bool noted_canvas_redo(NotedCanvas *self)
 // input to draw an erase line between the two.
 static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y, float pressure)
 {
-    if(state == kNCEraserDown)
+    if(state == kNCToolDown)
     {
         self->eraserPrevX = NAN;
         self->eraserPrevY = NAN;
@@ -308,7 +308,7 @@ static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y
         }
     }
     
-    if(state == kNCEraserUp)
+    if(state == kNCToolUp)
     {
         self->eraserPrevX = NAN;
         self->eraserPrevY = NAN;

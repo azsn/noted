@@ -14,13 +14,17 @@ typedef struct
 
 typedef enum
 {
-    kNCPenDown,
-    kNCPenUp,
-    kNCPenDrag,
-    kNCEraserDown,
-    kNCEraserUp,
-    kNCEraserDrag,
+    kNCToolDown,
+    kNCToolUp,
+    kNCToolDrag,
 } NCInputState;
+
+typedef enum
+{
+    kNCPenTool,
+    kNCEraserTool,
+    kNCSelectTool,
+} NCInputTool;
 
 /*
  * Called when a region of the canvas has been invalidated (should
@@ -52,7 +56,39 @@ void noted_canvas_draw(NotedCanvas *canvas, cairo_t *cr);
 /*
  * Call on a mouse/pen/eraser event.
  */
-void noted_canvas_input(NotedCanvas *canvas, NCInputState state, float x, float y, float pressure);
+void noted_canvas_input(NotedCanvas *canvas, NCInputState state, NCInputTool tool, float x, float y, float pressure);
+
+/*
+ * Sets the color for future strokes or the current selection.
+ */
+//void noted_canvas_set_color(NotedCanvas *canvas, float r, float g, float b, float a);
+
+/*
+ * Sets the thickness for future strokes or the current selection.
+ */
+//void noted_canvas_set_thickness(NotedCanvas *canvas, float thickness);
+
+/*
+ * Clears selection
+ */
+//void noted_canvas_clear_selection(NotedCanvas *canvas);
+
+/*
+ * Deletes content within current selection.
+ */
+//void noted_canvas_delete_selection(NotedCanvas *canvas);
+
+/*
+ * Copies content in current selection.
+ * Cut by doing noted_canvas_copy followed
+ * by noted_canvas_delete_selection.
+ */
+//void * noted_canvas_copy(NotedCanvas *canvas);
+
+/*
+ * Pastes a content cut/copy (possibly from another canvas).
+ */
+//void noted_canvas_paste(NotedCanvas *canvas, void *content);
 
 /*
  * Undo. Returns true on success.
