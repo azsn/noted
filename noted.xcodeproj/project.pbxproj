@@ -7,31 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DDDB57EF1EF04FBF00ED8F0D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDB57EE1EF04FBF00ED8F0D /* AppDelegate.m */; };
+		DDDB57EF1EF04FBF00ED8F0D /* appdelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDB57EE1EF04FBF00ED8F0D /* appdelegate.m */; };
 		DDDB57F21EF04FBF00ED8F0D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDB57F11EF04FBF00ED8F0D /* main.m */; };
-		DDDB57F51EF04FBF00ED8F0D /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDB57F41EF04FBF00ED8F0D /* Document.m */; };
-		DDDB57F81EF04FBF00ED8F0D /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57F61EF04FBF00ED8F0D /* Document.xib */; };
 		DDDB57FA1EF04FBF00ED8F0D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */; };
-		DDDB57FD1EF04FBF00ED8F0D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57FB1EF04FBF00ED8F0D /* MainMenu.xib */; };
-		DDDB58061EF0507B00ED8F0D /* CairoDraw.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDB58051EF0507B00ED8F0D /* CairoDraw.m */; };
+		DDDB57FD1EF04FBF00ED8F0D /* Main.xib in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57FB1EF04FBF00ED8F0D /* Main.xib */; };
+		DDDB58061EF0507B00ED8F0D /* nc-view.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDB58051EF0507B00ED8F0D /* nc-view.m */; };
 		DDDB580C1EF090DC00ED8F0D /* notedcanvas.c in Sources */ = {isa = PBXBuildFile; fileRef = DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		DDDB57EA1EF04FBF00ED8F0D /* noted.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noted.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DDDB57ED1EF04FBF00ED8F0D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		DDDB57EE1EF04FBF00ED8F0D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		DDDB57F11EF04FBF00ED8F0D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		DDDB57F31EF04FBF00ED8F0D /* Document.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
-		DDDB57F41EF04FBF00ED8F0D /* Document.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
-		DDDB57F71EF04FBF00ED8F0D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Document.xib; sourceTree = "<group>"; };
-		DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DDDB57FC1EF04FBF00ED8F0D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		DDDB57FE1EF04FBF00ED8F0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DDDB58041EF0507B00ED8F0D /* CairoDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CairoDraw.h; sourceTree = "<group>"; };
-		DDDB58051EF0507B00ED8F0D /* CairoDraw.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CairoDraw.m; sourceTree = "<group>"; };
-		DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = notedcanvas.c; sourceTree = "<group>"; };
-		DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = notedcanvas.h; sourceTree = "<group>"; };
+		DDDB57EE1EF04FBF00ED8F0D /* appdelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = appdelegate.m; path = src/cocoa/appdelegate.m; sourceTree = "<group>"; };
+		DDDB57F11EF04FBF00ED8F0D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = main.m; path = src/cocoa/main.m; sourceTree = "<group>"; };
+		DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = src/cocoa/Assets.xcassets; sourceTree = "<group>"; };
+		DDDB57FC1EF04FBF00ED8F0D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Main.xib; sourceTree = "<group>"; };
+		DDDB57FE1EF04FBF00ED8F0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/cocoa/Info.plist; sourceTree = "<group>"; };
+		DDDB58051EF0507B00ED8F0D /* nc-view.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "nc-view.m"; path = "src/cocoa/nc-view.m"; sourceTree = "<group>"; };
+		DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = notedcanvas.c; path = src/notedcanvas.c; sourceTree = "<group>"; };
+		DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = notedcanvas.h; path = src/notedcanvas.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,11 +41,10 @@
 		DDDB57E11EF04FBF00ED8F0D = {
 			isa = PBXGroup;
 			children = (
+				DDDB58051EF0507B00ED8F0D /* nc-view.m */,
 				DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */,
 				DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */,
-				DDDB58041EF0507B00ED8F0D /* CairoDraw.h */,
-				DDDB58051EF0507B00ED8F0D /* CairoDraw.m */,
-				DDDB57EC1EF04FBF00ED8F0D /* noted */,
+				DDDE33641FB3F2210061CAF2 /* Cocoa */,
 				DDDB57EB1EF04FBF00ED8F0D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,28 +57,16 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		DDDB57EC1EF04FBF00ED8F0D /* noted */ = {
+		DDDE33641FB3F2210061CAF2 /* Cocoa */ = {
 			isa = PBXGroup;
 			children = (
-				DDDB57ED1EF04FBF00ED8F0D /* AppDelegate.h */,
-				DDDB57EE1EF04FBF00ED8F0D /* AppDelegate.m */,
-				DDDB57F31EF04FBF00ED8F0D /* Document.h */,
-				DDDB57F41EF04FBF00ED8F0D /* Document.m */,
-				DDDB57F61EF04FBF00ED8F0D /* Document.xib */,
-				DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */,
-				DDDB57FB1EF04FBF00ED8F0D /* MainMenu.xib */,
-				DDDB57FE1EF04FBF00ED8F0D /* Info.plist */,
-				DDDB57F01EF04FBF00ED8F0D /* Supporting Files */,
-			);
-			path = noted;
-			sourceTree = "<group>";
-		};
-		DDDB57F01EF04FBF00ED8F0D /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
+				DDDB57EE1EF04FBF00ED8F0D /* appdelegate.m */,
 				DDDB57F11EF04FBF00ED8F0D /* main.m */,
+				DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */,
+				DDDB57FB1EF04FBF00ED8F0D /* Main.xib */,
+				DDDB57FE1EF04FBF00ED8F0D /* Info.plist */,
 			);
-			name = "Supporting Files";
+			name = Cocoa;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -149,8 +129,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DDDB57FA1EF04FBF00ED8F0D /* Assets.xcassets in Resources */,
-				DDDB57F81EF04FBF00ED8F0D /* Document.xib in Resources */,
-				DDDB57FD1EF04FBF00ED8F0D /* MainMenu.xib in Resources */,
+				DDDB57FD1EF04FBF00ED8F0D /* Main.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -161,31 +140,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DDDB57F51EF04FBF00ED8F0D /* Document.m in Sources */,
 				DDDB57F21EF04FBF00ED8F0D /* main.m in Sources */,
 				DDDB580C1EF090DC00ED8F0D /* notedcanvas.c in Sources */,
-				DDDB58061EF0507B00ED8F0D /* CairoDraw.m in Sources */,
-				DDDB57EF1EF04FBF00ED8F0D /* AppDelegate.m in Sources */,
+				DDDB58061EF0507B00ED8F0D /* nc-view.m in Sources */,
+				DDDB57EF1EF04FBF00ED8F0D /* appdelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		DDDB57F61EF04FBF00ED8F0D /* Document.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				DDDB57F71EF04FBF00ED8F0D /* Base */,
-			);
-			name = Document.xib;
-			sourceTree = "<group>";
-		};
-		DDDB57FB1EF04FBF00ED8F0D /* MainMenu.xib */ = {
+		DDDB57FB1EF04FBF00ED8F0D /* Main.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				DDDB57FC1EF04FBF00ED8F0D /* Base */,
 			);
-			name = MainMenu.xib;
+			name = Main.xib;
+			path = src/cocoa;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -285,7 +256,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = R8LH6JD7C6;
 				HEADER_SEARCH_PATHS = /usr/local/Cellar/cairo/1.14.8/include;
-				INFOPLIST_FILE = noted/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/src/cocoa/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/cairo/1.14.8/lib;
 				OTHER_LDFLAGS = (
@@ -304,7 +275,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = R8LH6JD7C6;
 				HEADER_SEARCH_PATHS = /usr/local/Cellar/cairo/1.14.8/include;
-				INFOPLIST_FILE = noted/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/src/cocoa/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/cairo/1.14.8/lib;
 				OTHER_LDFLAGS = (

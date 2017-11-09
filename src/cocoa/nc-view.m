@@ -1,11 +1,13 @@
-#import "CairoDraw.h"
-
+#import <Cocoa/Cocoa.h>
 #include <cairo/cairo-quartz.h>
 #include "notedcanvas.h"
 
 static float kPageSize = 500.0;
 
-@implementation CairoDraw
+@interface NCView : NSView
+@end
+
+@implementation NCView
 {
     NSSize surfaceSize;
     cairo_surface_t *surface;
@@ -98,7 +100,7 @@ static float kPageSize = 500.0;
 
 void invalidate_callback(NotedCanvas *canvas, NCRect *r, unsigned long npages, void *data)
 {
-    CairoDraw *self = (__bridge CairoDraw *)(data);
+    NCView *self = (__bridge NCView *)(data);
     //[self setNeedsDisplay:true];
     [self setNeedsDisplayInRect:NSMakeRect(r->x1, r->y1, r->x2-r->x1, r->y2-r->y1)];
 }
