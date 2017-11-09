@@ -1,3 +1,11 @@
+/*
+ * Noted by zelbrium
+ * Apache License 2.0
+ *
+ * nc-view.m: macOS NSView wrapper for NotedCanvas.
+ *   Used by Main.xib.
+ */
+
 #import <Cocoa/Cocoa.h>
 #include <cairo/cairo-quartz.h>
 #include "notedcanvas.h"

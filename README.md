@@ -6,5 +6,5 @@ Note-taking software for macOS and Linux specifically designed for use with draw
 License
 -----
 
-All code is under the Apache Public License 2.0.
+All code is under the Apache License 2.0.
 http://www.apache.org/licenses/LICENSE-2.0

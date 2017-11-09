@@ -1,7 +1,14 @@
+/*
+ * Noted by zelbrium
+ * Apache License 2.0
+ *
+ * notedcanvas.c: Main canvas object, where the drawing happens.
+ *   OS-independent, wrapped by cocoa/nc-view.m and soon others.
+ */
+
 #ifndef notedcanvas_h
 #define notedcanvas_h
 
-#include <stdio.h>
 #include <cairo/cairo.h>
 #include <stdbool.h>
 

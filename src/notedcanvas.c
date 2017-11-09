@@ -1,4 +1,13 @@
+/*
+ * Noted by zelbrium
+ * Apache License 2.0
+ *
+ * notedcanvas.c: Main canvas object, where the drawing happens.
+ *   OS-independent, wrapped by cocoa/nc-view.m and soon others.
+ */
+
 #include "notedcanvas.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
