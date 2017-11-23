@@ -88,7 +88,7 @@
                             <scrollView wantsLayer="YES" fixedFrame="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" allowsMagnification="YES" usesPredominantAxisScrolling="NO" id="buF-mD-9UR">
                                 <rect key="frame" x="201" y="0.0" width="438" height="480"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="XIC-QD-3ZR">
+                                <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="XIC-QD-3ZR" customClass="CenteredClipView" customModule="noted" customModuleProvider="target">
                                     <rect key="frame" x="0.0" y="0.0" width="438" height="480"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
