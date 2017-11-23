@@ -24,7 +24,7 @@ typedef struct
     float *y; // Array of ys
     NCRect bounds;
     NCStrokeStyle style;
-    bool useBezier; // Set true if there are any points that are far away from their previous point
+    float maxDistSq; // Longest distance (squared) between two consecutive points
 } Stroke;
 
 struct Page_
@@ -191,13 +191,6 @@ bool noted_canvas_redo(NotedCanvas *self)
 
 static void pen_input(NotedCanvas *self, NCInputState state, float x, float y, float pressure)
 {
-    // TODO: kMinBezierDistanceSq depends on number of pixels in the view
-    // Should probably make usage of bezier curves depend on the current
-    // rendering, not part of the stroke itself (ie. depends on zoom and
-    // other at-render-time factors)
-    static float kMinBezierDistanceSq = 20.0/(500.0*500.0);
-    static float kMinBezierAngleRad = 0.7;
-
     Stroke *s = self->currentStroke;
         
     if(state == kNCToolDown)
@@ -225,9 +218,9 @@ static void pen_input(NotedCanvas *self, NCInputState state, float x, float y, f
         
         Stroke new = {
             .bounds = {x, y, x, y},
+            .maxDistSq = 0,
             .page = p,
             .style = self->currentStyle,
-            .useBezier = false,
             .x = array_new(sizeof(float), NULL),
             .y = array_new(sizeof(float), NULL),
         };
@@ -259,19 +252,8 @@ static void pen_input(NotedCanvas *self, NCInputState state, float x, float y, f
         
         // Use beziers when there is a long distance between points.
         float dsq = sq_dist(s->x[i], s->y[i], x, y);
-        if(dsq > kMinBezierDistanceSq)
-            s->useBezier = true;
-        
-        // Use beziers when there is a sharp turn in the line,
-        // since those don't usually look good with regular lines.
-        if(array_size(s->x) > 1 && !s->useBezier)
-        {
-            float a = angle_from_points(s->x[i - 1], s->y[i - 1],
-                                        s->x[i], s->y[i],
-                                        x, y);
-            if(fabs(a) < kMinBezierAngleRad)
-                s->useBezier = true;
-        }
+        if(dsq > s->maxDistSq)
+            s->maxDistSq = dsq;
     }
     
     s->x = array_append(s->x, &x);
@@ -462,11 +444,18 @@ static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y
 // cairo_translate before this might be useful.
 static void draw_stroke(cairo_t *cr, Stroke *s)
 {
+    static const double kMinBezierDist = 4.0; // "device coordinates" (pixels)
+
     cairo_new_path(cr);
     cairo_move_to(cr, s->x[0], s->y[0]);
     
+    // If the stroke is very compressed on screen,
+    // it's not important to render it with actual curves.
+    double maxDist = sqrt(s->maxDistSq), _ = 0;
+    cairo_user_to_device_distance(cr, &maxDist, &_);
+    
     size_t npoints = array_size(s->x);
-    if(s->useBezier && npoints > 2) // Bezier algorithm needs at least 3 points
+    if(maxDist > kMinBezierDist && npoints > 2) // Bezier algorithm needs at least 3 points
     {
         float xc1[npoints], yc1[npoints], xc2[npoints], yc2[npoints];
         calculate_control_points(s->x, (int)npoints, xc1, xc2);
