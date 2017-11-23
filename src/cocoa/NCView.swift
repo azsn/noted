@@ -23,11 +23,11 @@ class NCView: NSView
         
         let c = noted_canvas_new()
         var style = NCStrokeStyle()
-        style.a = 0.5
-        style.r = 1
+        style.a = 1
+        style.r = 0
         style.g = 0
         style.b = 0
-        style.thickness = Float(10.0 / NCView.kPageWidth)
+        style.thickness = Float(0.8 / NCView.kPageWidth)
         noted_canvas_set_stroke_style(c, style)
         setCanvas(canvas: c!)
     }
@@ -84,9 +84,6 @@ class NCView: NSView
             return false
         }
         
-//        context?.translateBy(x: 0.0, y: size.height)
-//        context?.scaleBy(x: 1.0, y: -1.0)
-        
         self.surface = cairo_quartz_surface_create_for_cg_context(context, UInt32(size.width), UInt32(size.height))
         if(self.surface == nil || cairo_surface_status(self.surface) != CAIRO_STATUS_SUCCESS)
         {
@@ -111,11 +108,14 @@ class NCView: NSView
             return
         }
         
+        // Magnification controlled by the NSScrollView ancestor
+        let magnification = (self.superview?.superview as? NSScrollView)?.magnification ?? 1
+        
         cairo_save(self.cr)
         cairo_rectangle(self.cr, Double(rect.origin.x), Double(rect.origin.y), Double(rect.size.width), Double(rect.size.height))
         cairo_clip(self.cr)
         cairo_scale(self.cr, Double(self.frame.size.width), Double(self.frame.size.width))
-        noted_canvas_draw(self.canvas, self.cr)
+        noted_canvas_draw(self.canvas, self.cr, Float(magnification))
         cairo_restore(self.cr)
     }
     

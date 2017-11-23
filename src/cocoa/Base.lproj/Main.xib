@@ -85,7 +85,7 @@
                                     <constraint firstItem="LNr-R7-Q1d" firstAttribute="leading" secondItem="yvJ-v9-ue6" secondAttribute="leading" id="u84-Gs-ZEL"/>
                                 </constraints>
                             </customView>
-                            <scrollView wantsLayer="YES" fixedFrame="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="buF-mD-9UR">
+                            <scrollView wantsLayer="YES" fixedFrame="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" allowsMagnification="YES" usesPredominantAxisScrolling="NO" id="buF-mD-9UR">
                                 <rect key="frame" x="201" y="0.0" width="438" height="480"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="XIC-QD-3ZR">

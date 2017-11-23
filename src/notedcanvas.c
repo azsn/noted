@@ -29,8 +29,10 @@ typedef struct
 
 struct Page_
 {
-    NCRect bounds;
     Stroke *strokes;
+    NCRect bounds;
+    NCPagePattern pattern;
+    unsigned int density;
 };
 
 struct NotedCanvas_
@@ -47,14 +49,14 @@ struct NotedCanvas_
 
 static void pen_input(NotedCanvas *self, NCInputState state, float x, float y, float pressure);
 static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y, float pressure);
-static void draw_stroke(cairo_t *cr, Stroke *s);
+static void draw_page(cairo_t *cr, Page *p);
+static void draw_stroke(cairo_t *cr, Stroke *s, float magnification);
 static void append_page(NotedCanvas *self);
 static void calculate_control_points(float *p, int n, float *cp1, float *cp2);
 static void clear_redos(NotedCanvas *self);
 static void free_stroke(Stroke *s);
 static void free_page(Page *p);
 
-static float angle_from_points(float ax, float ay, float bx, float by, float cx, float cy);
 static inline NCRect * expand_rect(NCRect *a, float amount);
 static inline bool rects_intersect(NCRect *a, NCRect *b);
 static inline bool point_in_rect(NCRect *r, float x, float y);
@@ -88,7 +90,7 @@ void noted_canvas_set_invalidate_callback(NotedCanvas *self, NCInvalidateCallbac
     }
 }
 
-void noted_canvas_draw(NotedCanvas *self, cairo_t *cr)
+void noted_canvas_draw(NotedCanvas *self, cairo_t *cr, float magnification)
 {
     NCRect clipRect, relClipRect;
     
@@ -102,14 +104,14 @@ void noted_canvas_draw(NotedCanvas *self, cairo_t *cr)
     }
     
     size_t npages = array_size(self->pages);
-    cairo_new_path(cr);
-    cairo_set_source_rgba(cr, 1, 1, 1, 1);
     for(size_t i = 0; i < npages; ++i)
     {
         Page *p = &self->pages[i];
         
-        cairo_rectangle(cr, p->bounds.x1, p->bounds.y1, p->bounds.x2 - p->bounds.x1, p->bounds.y2 - p->bounds.y1);
-        cairo_fill(cr);
+        if(!rects_intersect(&clipRect, &p->bounds))
+            continue;
+        
+        draw_page(cr, p);
     }
     
     cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
@@ -138,7 +140,7 @@ void noted_canvas_draw(NotedCanvas *self, cairo_t *cr)
             
             cairo_set_line_width(cr, s->style.thickness);
             cairo_set_source_rgba(cr, s->style.r, s->style.g, s->style.b, s->style.a);
-            draw_stroke(cr, s);
+            draw_stroke(cr, s, magnification);
         }
         
         cairo_restore(cr);
@@ -160,6 +162,39 @@ void noted_canvas_input(NotedCanvas *self, NCInputState state, NCInputTool tool,
             printf("select tool not implemented\n");
             break;
     }
+}
+
+float noted_canvas_get_height(NotedCanvas *self)
+{
+    if(array_size(self->pages) == 0)
+        return 0;
+    return self->pages[array_size(self->pages) - 1].bounds.y2;
+}
+
+void noted_canvas_set_stroke_style(NotedCanvas *self, NCStrokeStyle style)
+{
+    self->currentStyle = style;
+}
+
+size_t noted_canvas_get_n_pages(NotedCanvas *self)
+{
+    return array_size(self->pages);
+}
+
+void noted_canvas_get_page_rect(NotedCanvas *self, size_t index, NCRect *rect)
+{
+    *rect = self->pages[index].bounds;
+}
+
+void noted_canvas_set_page_pattern(NotedCanvas *self, size_t index, NCPagePattern pattern, unsigned int density)
+{
+    self->pages[index].pattern = pattern;
+    self->pages[index].density = density;
+}
+
+void noted_canvas_move_page(NotedCanvas *self, size_t index, size_t targetIndex)
+{
+//    Page p = self->pages[index];
 }
 
 // TODO: Undo doesn't work with erasing.
@@ -332,25 +367,24 @@ static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y
     unsigned char *data = NULL;
     unsigned long datalen = 0;
     
-    NCRect relEraserRect;
-    
     size_t npages = array_size(self->pages);
     for(size_t i = 0; i < npages; ++i)
     {
         Page *p = &self->pages[i];
-        
-        relEraserRect.x1 = eraserRect.x1 - p->bounds.x1;
-        relEraserRect.y1 = eraserRect.y1 - p->bounds.y1;
-        relEraserRect.x2 = eraserRect.x2 - p->bounds.x1;
-        relEraserRect.y2 = eraserRect.y2 - p->bounds.y1;
-        
+
         size_t nstrokes = array_size(p->strokes);
         for(unsigned long j = 0; j < nstrokes; ++j)
         {
-            // Don't bother if the stroke isn't in the eraser rect
             Stroke *s = &p->strokes[j];
+            
             NCRect r = s->bounds;
-            if(!rects_intersect(&relEraserRect, expand_rect(&r, s->style.thickness)))
+            r.x1 += p->bounds.x1;
+            r.y1 += p->bounds.y1;
+            r.x2 += p->bounds.x1;
+            r.y2 += p->bounds.y1;
+            
+            // Ignore stroke if it isn't in the eraser rect
+            if(!rects_intersect(&eraserRect, expand_rect(&r, s->style.thickness)))
                 continue;
             
             if(!sr)
@@ -390,7 +424,7 @@ static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y
             // Half alpha
             cairo_translate(cr, p->bounds.x1, p->bounds.y1);
             cairo_set_line_width(cr, s->style.thickness);
-            draw_stroke(cr, s);
+            draw_stroke(cr, s, 1);
             
             cairo_restore(cr);
             cairo_surface_flush(sr);
@@ -409,9 +443,6 @@ static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y
             {
                 if(data[k] == 0xFF)
                 {
-                    NCRect r = s->bounds;
-                    expand_rect(&r, s->style.thickness);
-                    
                     clear_redos(self);
                     array_remove(p->strokes, j, true);
                     if(self->invalidateCallback)
@@ -440,11 +471,81 @@ static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y
         cairo_surface_destroy(sr);
 }
 
+static void draw_page(cairo_t *cr, Page *p)
+{
+    // Clear background
+    cairo_new_path(cr);
+    cairo_set_source_rgba(cr, 1, 1, 1, 1);
+    cairo_rectangle(cr, p->bounds.x1, p->bounds.y1, p->bounds.x2 - p->bounds.x1, p->bounds.y2 - p->bounds.y1);
+    cairo_fill(cr);
+    
+    // Background pattern
+    if(p->pattern == kNCPageBlank)
+        return;
+    
+    static const float kHBorderPad = 1.f/24.f;
+    static const float kVBorderPad = 1.f/14.f;
+    
+    cairo_set_source_rgba(cr, 0.1, 0.1, 0.1, 0.1);
+    cairo_set_line_width(cr, 1.f/600.f);
+    
+    float w = p->bounds.x2 - p->bounds.x1 - kHBorderPad - kHBorderPad;
+    float h = p->bounds.y2 - p->bounds.y1 - kVBorderPad - kVBorderPad;
+    
+    switch(p->pattern)
+    {
+        case kNCPageGrided:
+        {
+            float size = (1.f / p->density) * w;
+            unsigned int vdensity = floor((h / w) * p->density);
+            h = size * vdensity;
+            float vpad = ((p->bounds.y2 - p->bounds.y1) - h) / 2;
+            
+            // Draw vertical lines at user's density
+            for(int i = 0; i <= p->density; ++i)
+            {
+                float f = size * i;
+                cairo_move_to(cr, p->bounds.x1 + kHBorderPad + f, p->bounds.y1 + vpad);
+                cairo_line_to(cr, p->bounds.x1 + kHBorderPad + f, p->bounds.y2 - vpad);
+            }
+            
+            // Draw horizontal lines such that they're exactly the same
+            // size as the vertical gaps, but more of them to fill h.
+            for(int i = 0; i <= vdensity; ++i)
+            {
+                float f = size * i;
+                cairo_move_to(cr, p->bounds.x1 + kHBorderPad, p->bounds.y1 + vpad + f);
+                cairo_line_to(cr, p->bounds.x2 - kHBorderPad, p->bounds.y1 + vpad + f);
+            }
+            
+            cairo_stroke(cr);
+            break;
+        }
+        
+        case kNCPageRuled:
+        {
+            float size = (1.f / p->density) * h;
+            for(int i = 0; i <= p->density; ++i)
+            {
+                float f = size * i;
+                cairo_move_to(cr, p->bounds.x1 + kHBorderPad, p->bounds.y1 + kVBorderPad + f);
+                cairo_line_to(cr, p->bounds.x2 - kHBorderPad, p->bounds.y1 + kVBorderPad + f);
+            }
+            
+            cairo_stroke(cr);
+            break;
+        }
+            
+        case kNCPageBlank:
+            break;
+    }
+}
+
 // Draws in page-relative coordinates, so a call to
 // cairo_translate before this might be useful.
-static void draw_stroke(cairo_t *cr, Stroke *s)
+static void draw_stroke(cairo_t *cr, Stroke *s, float magnification)
 {
-    static const double kMinBezierDist = 4.0; // "device coordinates" (pixels)
+    static const double kMinBezierDist = 2.0; // "device coordinates" (pixels)
 
     cairo_new_path(cr);
     cairo_move_to(cr, s->x[0], s->y[0]);
@@ -453,6 +554,7 @@ static void draw_stroke(cairo_t *cr, Stroke *s)
     // it's not important to render it with actual curves.
     double maxDist = sqrt(s->maxDistSq), _ = 0;
     cairo_user_to_device_distance(cr, &maxDist, &_);
+    maxDist *= magnification;
     
     size_t npoints = array_size(s->x);
     if(maxDist > kMinBezierDist && npoints > 2) // Bezier algorithm needs at least 3 points
@@ -476,15 +578,26 @@ static void draw_stroke(cairo_t *cr, Stroke *s)
 
 static void append_page(NotedCanvas *self)
 {
+    // TODO: Temporary. Should default to blank.
+    NCPagePattern pattern = kNCPageGrided;
+    unsigned int density = 24;
+    
     NCRect b = {0};
     if(array_size(self->pages) > 0)
     {
-        b = self->pages[array_size(self->pages) - 1].bounds;
+        Page *prev = &self->pages[array_size(self->pages) - 1];
+        b = prev->bounds;
         b.y2 += 0.01;
+        
+        // Copy pattern from last page
+        pattern = prev->pattern;
+        density = prev->density;
     }
     
     Page p = {
         .bounds = {0, b.y2, 1, b.y2 + 11/8.5f},
+        .density = density,
+        .pattern = pattern,
         .strokes = array_new(sizeof(Stroke), (FreeNotify)free_stroke)
     };
     self->pages = array_append(self->pages, &p);
@@ -494,18 +607,6 @@ static void append_page(NotedCanvas *self)
         self->invalidateCallback(self, NULL, self->callbackData);
         self->invalidateCallback(self, &p.bounds, self->callbackData);
     }
-}
-
-float noted_canvas_get_height(NotedCanvas *self)
-{
-    if(array_size(self->pages) == 0)
-        return 0;
-    return self->pages[array_size(self->pages) - 1].bounds.y2;
-}
-
-void noted_canvas_set_stroke_style(NotedCanvas *canvas, NCStrokeStyle style)
-{
-    canvas->currentStyle = style;
 }
 
 
@@ -561,18 +662,6 @@ static void calculate_control_points(float *p, int n, float *cp1, float *cp2)
         cp2[i] = (2 * p[i+1]) - cp1[i+1];
     
     cp2[n-1] = 0.5 * (p[n] + cp1[n-1]);
-}
-
-// https://stackoverflow.com/a/3487062/161429
-static float angle_from_points(float ax, float ay, float bx, float by, float cx, float cy)
-{
-    float abx = bx - ax;
-    float aby = by - ay;
-    float cbx = bx - cx;
-    float cby = by - cy;
-    float dot = (abx * cbx + aby * cby); // dot product
-    float cross = (abx * cby - aby * cbx); // cross product
-    return atan2(cross, dot);
 }
 
 static void clear_redos(NotedCanvas *self)

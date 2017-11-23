@@ -9,8 +9,10 @@
 #ifndef notedcanvas_h
 #define notedcanvas_h
 
-#include <cairo/cairo.h>
+#include <stdlib.h>
 #include <stdbool.h>
+#include <cairo/cairo.h>
+
 
 typedef struct NotedCanvas_ NotedCanvas;
 
@@ -38,6 +40,13 @@ typedef enum
     kNCEraserTool,
     kNCSelectTool,
 } NCInputTool;
+
+typedef enum
+{
+    kNCPageBlank,
+    kNCPageRuled,
+    kNCPageGrided,
+} NCPagePattern;
 
 /*
  * Called when a region of the canvas has been invalidated
@@ -70,8 +79,13 @@ void noted_canvas_set_invalidate_callback(NotedCanvas *canvas, NCInvalidateCallb
  * Redraw the canvas. This should be called as a response to
  * NotedCanvasInvalidateCallback once the backend has initiated
  * a redraw. Use cairo_clip() to specify the region to redraw.
+ *
+ * If the controller applies some external magnification to the
+ * rendering that is not accounted for by Cairo's transformation
+ * matrix, use 'magnification' to account for that. It is optional,
+ * and helps with optimizing rendering strokes. 1 is no magnification.
  */
-void noted_canvas_draw(NotedCanvas *canvas, cairo_t *cr);
+void noted_canvas_draw(NotedCanvas *canvas, cairo_t *cr, float magnification);
 
 /*
  * Call on a mouse/pen/eraser event.
@@ -90,6 +104,40 @@ float noted_canvas_get_height(NotedCanvas *canvas);
  * Sets the style for future strokes or the current selection.
  */
 void noted_canvas_set_stroke_style(NotedCanvas *canvas, NCStrokeStyle style);
+
+
+/*
+ * Returns the number of pages on the canvas.
+ */
+size_t noted_canvas_get_n_pages(NotedCanvas *canvas);
+
+/*
+ * Gets the rect of the page at index. This rect can be passed
+ * to noted_canvas_draw to get a full page draw.
+ */
+void noted_canvas_get_page_rect(NotedCanvas *canvas, size_t index, NCRect *rect);
+
+/*
+ * Sets the background pattern of a page. Density is how many
+ * lines / grid cells per page.
+ * TODO: Will probably be replaced by a more generic method
+ * when PDF background support comes.
+ */
+void noted_canvas_set_page_pattern(NotedCanvas *canvas, size_t index, NCPagePattern pattern, unsigned int density);
+
+/*
+ * Moves page from index to targetIndex. targetIndex is specified
+ * before the removal at index, so if there are pages A, B, C, D
+ * at indices 0, 1, 2, 3, respectively, move_page(c, 0, 3) results
+ * in the order B, C, D, A.
+ */
+void noted_canvas_move_page(NotedCanvas *canvas, size_t index, size_t targetIndex);
+
+//void * noted_canvas_page_copy(NotedCanvas *canvas, size_t index);
+//
+//void * noted_canvas_page_cut(NotedCanvas *canvas, size_t index);
+//
+//void noted_canvas_page_paste(NotedCanvas *canvas, size_t index);
 
 /*
  * Clears selection
