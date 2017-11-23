@@ -19,6 +19,12 @@ typedef struct
     float x1, y1, x2, y2;
 } NCRect;
 
+typedef struct
+{
+    float r, g, b, a;
+    float thickness;
+} NCStrokeStyle;
+
 typedef enum
 {
     kNCToolDown,
@@ -34,24 +40,31 @@ typedef enum
 } NCInputTool;
 
 /*
- * Called when a region of the canvas has been invalidated (should
- * be redrawn). rect may be NULL if all that changed is the number
- * of pages.
+ * Called when a region of the canvas has been invalidated
+ * or other properties changed. If rect is non-null, the
+ * rect region of the canvas should be redrawn. If rect is
+ * null, other canvas properties may have updated and should
+ * be checked.
  */
-typedef void (*NCInvalidateCallback)(NotedCanvas *canvas, NCRect *rect, unsigned long npages, void *data);
+typedef void (*NCInvalidateCallback)(NotedCanvas *canvas, NCRect *rect, void *data);
 
 
 /*
  * Create canvas.
- * pageHeight is in the same units used for mouse x,y and
- * draw coordinates. These are not necessarily screen units.
+ * See: noted_canvas_set_invalidate_callback
  */
-NotedCanvas * noted_canvas_new(NCInvalidateCallback invalidateCallback, float pageHeight, void *data);
+NotedCanvas * noted_canvas_new();
 
 /*
  * Destroy canvas.
  */
 void noted_canvas_destroy(NotedCanvas *canvas);
+
+/*
+ * Change invalidate callback. Called when the canvas
+ * should be redrawn or other properties have changed.
+ */
+void noted_canvas_set_invalidate_callback(NotedCanvas *canvas, NCInvalidateCallback invalidateCallback, void *data);
 
 /*
  * Redraw the canvas. This should be called as a response to
@@ -62,18 +75,21 @@ void noted_canvas_draw(NotedCanvas *canvas, cairo_t *cr);
 
 /*
  * Call on a mouse/pen/eraser event.
+ * x should be in the [0, 1] range,
+ * and y in the [0, height] range.
  */
 void noted_canvas_input(NotedCanvas *canvas, NCInputState state, NCInputTool tool, float x, float y, float pressure);
 
 /*
- * Sets the color for future strokes or the current selection.
+ * Gets the height of the canvas in units relative
+ * to the width (which is always 1).
  */
-//void noted_canvas_set_color(NotedCanvas *canvas, float r, float g, float b, float a);
+float noted_canvas_get_height(NotedCanvas *canvas);
 
 /*
- * Sets the thickness for future strokes or the current selection.
+ * Sets the style for future strokes or the current selection.
  */
-//void noted_canvas_set_thickness(NotedCanvas *canvas, float thickness);
+void noted_canvas_set_stroke_style(NotedCanvas *canvas, NCStrokeStyle style);
 
 /*
  * Clears selection
@@ -94,8 +110,10 @@ void noted_canvas_input(NotedCanvas *canvas, NCInputState state, NCInputTool too
 
 /*
  * Pastes a content cut/copy (possibly from another canvas).
+ * 'where' specifies the vertical center of the location of pasting.
+ * This should be the center of the current scroll location.
  */
-//void noted_canvas_paste(NotedCanvas *canvas, void *content);
+//void noted_canvas_paste(NotedCanvas *canvas, void *content, float where);
 
 /*
  * Undo. Returns true on success.

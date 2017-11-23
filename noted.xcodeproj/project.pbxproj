@@ -7,22 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DDDB57EF1EF04FBF00ED8F0D /* appdelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDB57EE1EF04FBF00ED8F0D /* appdelegate.m */; };
-		DDDB57F21EF04FBF00ED8F0D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDB57F11EF04FBF00ED8F0D /* main.m */; };
+		DD622BC91FC3A0B1000A0252 /* NCView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD622BC81FC3A0B1000A0252 /* NCView.swift */; };
+		DD622BCC1FC3D007000A0252 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD622BCB1FC3D007000A0252 /* AppDelegate.swift */; };
+		DD622BD11FC50D1B000A0252 /* nc-loadsave.c in Sources */ = {isa = PBXBuildFile; fileRef = DD622BCF1FC50D1B000A0252 /* nc-loadsave.c */; };
+		DD622BD41FC50DB5000A0252 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = DD622BD21FC50DB5000A0252 /* array.c */; };
 		DDDB57FA1EF04FBF00ED8F0D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */; };
 		DDDB57FD1EF04FBF00ED8F0D /* Main.xib in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57FB1EF04FBF00ED8F0D /* Main.xib */; };
-		DDDB58061EF0507B00ED8F0D /* nc-view.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDB58051EF0507B00ED8F0D /* nc-view.m */; };
 		DDDB580C1EF090DC00ED8F0D /* notedcanvas.c in Sources */ = {isa = PBXBuildFile; fileRef = DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		DD622BC81FC3A0B1000A0252 /* NCView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NCView.swift; path = src/cocoa/NCView.swift; sourceTree = "<group>"; };
+		DD622BCA1FC3A2D3000A0252 /* swift-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swift-bridge.h"; path = "src/cocoa/swift-bridge.h"; sourceTree = "<group>"; };
+		DD622BCB1FC3D007000A0252 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = src/cocoa/AppDelegate.swift; sourceTree = "<group>"; };
+		DD622BCF1FC50D1B000A0252 /* nc-loadsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "nc-loadsave.c"; path = "src/nc-loadsave.c"; sourceTree = "<group>"; };
+		DD622BD01FC50D1B000A0252 /* nc-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "nc-private.h"; path = "src/nc-private.h"; sourceTree = "<group>"; };
+		DD622BD21FC50DB5000A0252 /* array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = array.c; path = src/array.c; sourceTree = "<group>"; };
+		DD622BD31FC50DB5000A0252 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = src/array.h; sourceTree = "<group>"; };
 		DDDB57EA1EF04FBF00ED8F0D /* noted.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noted.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DDDB57EE1EF04FBF00ED8F0D /* appdelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = appdelegate.m; path = src/cocoa/appdelegate.m; sourceTree = "<group>"; };
-		DDDB57F11EF04FBF00ED8F0D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = main.m; path = src/cocoa/main.m; sourceTree = "<group>"; };
 		DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = src/cocoa/Assets.xcassets; sourceTree = "<group>"; };
 		DDDB57FC1EF04FBF00ED8F0D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Main.xib; sourceTree = "<group>"; };
 		DDDB57FE1EF04FBF00ED8F0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/cocoa/Info.plist; sourceTree = "<group>"; };
-		DDDB58051EF0507B00ED8F0D /* nc-view.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "nc-view.m"; path = "src/cocoa/nc-view.m"; sourceTree = "<group>"; };
 		DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = notedcanvas.c; path = src/notedcanvas.c; sourceTree = "<group>"; };
 		DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = notedcanvas.h; path = src/notedcanvas.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -41,9 +46,12 @@
 		DDDB57E11EF04FBF00ED8F0D = {
 			isa = PBXGroup;
 			children = (
-				DDDB58051EF0507B00ED8F0D /* nc-view.m */,
 				DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */,
 				DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */,
+				DD622BCF1FC50D1B000A0252 /* nc-loadsave.c */,
+				DD622BD01FC50D1B000A0252 /* nc-private.h */,
+				DD622BD21FC50DB5000A0252 /* array.c */,
+				DD622BD31FC50DB5000A0252 /* array.h */,
 				DDDE33641FB3F2210061CAF2 /* Cocoa */,
 				DDDB57EB1EF04FBF00ED8F0D /* Products */,
 			);
@@ -60,11 +68,12 @@
 		DDDE33641FB3F2210061CAF2 /* Cocoa */ = {
 			isa = PBXGroup;
 			children = (
-				DDDB57EE1EF04FBF00ED8F0D /* appdelegate.m */,
-				DDDB57F11EF04FBF00ED8F0D /* main.m */,
-				DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */,
-				DDDB57FB1EF04FBF00ED8F0D /* Main.xib */,
 				DDDB57FE1EF04FBF00ED8F0D /* Info.plist */,
+				DDDB57FB1EF04FBF00ED8F0D /* Main.xib */,
+				DD622BC81FC3A0B1000A0252 /* NCView.swift */,
+				DD622BCB1FC3D007000A0252 /* AppDelegate.swift */,
+				DD622BCA1FC3A2D3000A0252 /* swift-bridge.h */,
+				DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */,
 			);
 			name = Cocoa;
 			sourceTree = "<group>";
@@ -101,6 +110,7 @@
 					DDDB57E91EF04FBF00ED8F0D = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = R8LH6JD7C6;
+						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -140,10 +150,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DDDB57F21EF04FBF00ED8F0D /* main.m in Sources */,
+				DD622BD11FC50D1B000A0252 /* nc-loadsave.c in Sources */,
+				DD622BCC1FC3D007000A0252 /* AppDelegate.swift in Sources */,
 				DDDB580C1EF090DC00ED8F0D /* notedcanvas.c in Sources */,
-				DDDB58061EF0507B00ED8F0D /* nc-view.m in Sources */,
-				DDDB57EF1EF04FBF00ED8F0D /* appdelegate.m in Sources */,
+				DD622BC91FC3A0B1000A0252 /* NCView.swift in Sources */,
+				DD622BD41FC50DB5000A0252 /* array.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,6 +264,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = R8LH6JD7C6;
 				HEADER_SEARCH_PATHS = /usr/local/Cellar/cairo/1.14.8/include;
@@ -265,6 +277,9 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.zelbrium.noted;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "src/cocoa/swift-bridge.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -272,6 +287,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = R8LH6JD7C6;
 				HEADER_SEARCH_PATHS = /usr/local/Cellar/cairo/1.14.8/include;
@@ -284,6 +300,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.zelbrium.noted;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "src/cocoa/swift-bridge.h";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
