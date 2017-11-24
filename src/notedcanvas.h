@@ -23,7 +23,7 @@ typedef struct
 
 typedef struct
 {
-    float r, g, b, a;
+    uint8_t r, g, b, a;
     float thickness;
 } NCStrokeStyle;
 
@@ -59,10 +59,14 @@ typedef void (*NCInvalidateCallback)(NotedCanvas *canvas, NCRect *rect, void *da
 
 
 /*
- * Create canvas.
- * See: noted_canvas_set_invalidate_callback
+ * Create a new blank canvas at the given path.
  */
-NotedCanvas * noted_canvas_new();
+NotedCanvas * noted_canvas_new(const char *path);
+
+/*
+ * Open a canvas from a file. Returns NULL on failure.
+ */
+NotedCanvas * noted_canvas_open(const char *path);
 
 /*
  * Destroy canvas.

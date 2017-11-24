@@ -14,6 +14,7 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="noted" customModuleProvider="target">
             <connections>
+                <outlet property="canvas" destination="b3Q-17-LGT" id="N0u-wx-5Yv"/>
                 <outlet property="outline" destination="TTF-ZW-Hsv" id="6pc-i7-A26"/>
             </connections>
         </customObject>

@@ -21,15 +21,9 @@ class NCView: NSView
     {
         super.init(coder: coder)
         
-        let c = noted_canvas_new()
-        var style = NCStrokeStyle()
-        style.a = 1
-        style.r = 0
-        style.g = 0
-        style.b = 0
-        style.thickness = Float(0.8 / NCView.kPageWidth)
-        noted_canvas_set_stroke_style(c, style)
-        setCanvas(canvas: c!)
+//        let c = noted_canvas_new()
+//        
+//        setCanvas(canvas: c!)
     }
     
     override var acceptsFirstResponder: Bool
@@ -46,6 +40,14 @@ class NCView: NSView
     {
         self.canvas = canvas
         noted_canvas_set_invalidate_callback(self.canvas, invalidate_callback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
+        
+        var style = NCStrokeStyle()
+        style.a = 1
+        style.r = 0
+        style.g = 0
+        style.b = 0
+        style.thickness = Float(0.8 / NCView.kPageWidth)
+        noted_canvas_set_stroke_style(canvas, style)
     }
     
     func ensureSurface() -> Bool
@@ -98,6 +100,7 @@ class NCView: NSView
             return false
         }
         
+        Swift.print("recreated surface")
         return true;
     }
     

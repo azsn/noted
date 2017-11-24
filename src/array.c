@@ -43,6 +43,22 @@ void array_free(void *data)
     }
 }
 
+void * array_reserve(void *data, size_t size, bool create)
+{
+    Array *arr = array_from_data(data);
+
+    if(size > arr->capacity)
+    {
+        arr->capacity = size;
+        arr = realloc(arr, sizeof(Array) + (arr->elementSize * arr->capacity));
+    }
+    
+    if(create)
+        arr->size = arr->capacity;
+    
+    return &arr->data;
+}
+
 void * array_append(void *data, void *element)
 {
     Array *arr = array_from_data(data);

@@ -6,46 +6,12 @@
  *   OS-independent, wrapped by cocoa/NCView.swift and soon others.
  */
 
-#include "notedcanvas.h"
-#include "util.h"
+#include "nc-private.h"
+#include "array.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include "array.h"
-
-typedef struct Page_ Page;
-
-typedef struct
-{
-    Page *page; // Owner page
-    float *x; // Array of xs
-    float *y; // Array of ys
-    NCRect bounds;
-    NCStrokeStyle style;
-    float maxDistSq; // Longest distance (squared) between two consecutive points
-} Stroke;
-
-struct Page_
-{
-    Stroke *strokes;
-    NCRect bounds;
-    NCPagePattern pattern;
-    unsigned int density;
-};
-
-struct NotedCanvas_
-{
-    NCInvalidateCallback invalidateCallback;
-    void *callbackData;
-    unsigned long lastStroke; // Used for undo
-    Page *pages;
-    Stroke *currentStroke;
-    float eraserPrevX, eraserPrevY;
-    NCStrokeStyle currentStyle;
-};
-
 
 static void pen_input(NotedCanvas *self, NCInputState state, float x, float y, float pressure);
 static void eraser_input(NotedCanvas *self, NCInputState state, float x, float y, float pressure);
@@ -54,18 +20,18 @@ static void draw_stroke(cairo_t *cr, Stroke *s, float magnification);
 static void append_page(NotedCanvas *self);
 static void calculate_control_points(float *p, int n, float *cp1, float *cp2);
 static void clear_redos(NotedCanvas *self);
-static void free_stroke(Stroke *s);
-static void free_page(Page *p);
 
 static inline NCRect * expand_rect(NCRect *a, float amount);
 static inline bool rects_intersect(NCRect *a, NCRect *b);
 static inline bool point_in_rect(NCRect *r, float x, float y);
-static inline void rect_expand_by_point(NCRect *a, float x, float y);
-static inline float sq_dist(float x1, float y1, float x2, float y2);
+extern inline void rect_expand_by_point(NCRect *a, float x, float y);
+extern inline float sq_dist(float x1, float y1, float x2, float y2);
 
-NotedCanvas * noted_canvas_new()
+
+NotedCanvas * noted_canvas_new(const char *path)
 {
     NotedCanvas *self = calloc(1, sizeof(NotedCanvas));
+    self->path = strdup(path);
     self->pages = array_new(sizeof(Page), (FreeNotify)free_page);
     append_page(self);
     return self;
@@ -73,6 +39,8 @@ NotedCanvas * noted_canvas_new()
 
 void noted_canvas_destroy(NotedCanvas *self)
 {
+    if(self->path)
+        free(self->path);
     array_free(self->pages);
     free(self);
 }
@@ -161,6 +129,15 @@ void noted_canvas_input(NotedCanvas *self, NCInputState state, NCInputTool tool,
             // TODO
             printf("select tool not implemented\n");
             break;
+    }
+    
+    if(state == kNCToolUp && self->path)
+    {
+        printf("save to %s\n", self->path);
+        if(!noted_canvas_save(self, self->path))
+        {
+            printf("error saving to %s\n", self->path);
+        }
     }
 }
 
@@ -671,13 +648,13 @@ static void clear_redos(NotedCanvas *self)
 //    self->numStrokes = self->lastStroke;
 }
 
-static void free_stroke(Stroke *s)
+void free_stroke(Stroke *s)
 {
     array_free(s->x);
     array_free(s->y);
 }
 
-static void free_page(Page *p)
+void free_page(Page *p)
 {
     array_free(p->strokes);
 }
@@ -701,22 +678,6 @@ static inline bool point_in_rect(NCRect *r, float x, float y)
     return x > r->x1 && x < r->x2 && y > r->y1 && y < r->y2;
 }
 
-static inline void rect_expand_by_point(NCRect *a, float x, float y)
-{
-    if(x > a->x2)
-        a->x2 = x;
-    if(x < a->x1)
-        a->x1 = x;
-    if(y > a->y2)
-        a->y2 = y;
-    if(y < a->y1)
-        a->y1 = y;
-}
-
-static inline float sq_dist(float x1, float y1, float x2, float y2)
-{
-    return (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1);
-}
 
 //    clock_t begin = clock();
 //    clock_t end = clock();

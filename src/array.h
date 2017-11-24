@@ -30,6 +30,17 @@ void * array_new(size_t elementSize, FreeNotify freeElement);
 void array_free(void *array);
 
 /*
+ * Increases the capacity of the array to at least size
+ * elements without changing the array length. Use this to
+ * pre-allocate space if the number of elements to append
+ * is known in advance. Set create = true to also increase
+ * the array's length to match its new capacity (does not
+ * zero the new space). This should always be called as
+ * a = array_reserve(a, size);
+ */
+void * array_reserve(void *data, size_t size, bool create);
+
+/*
  * Appends element to array, and returns a pointer
  * to the array. This should always be called as
  * a = array_append(a, elem);

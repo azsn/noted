@@ -11,7 +11,8 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate
 {
     @IBOutlet weak var outline: NSOutlineView!
-
+    @IBOutlet weak var canvas: NCView!
+    
     // Root NoteFile; directory where notes are stored
     static var noteDirectory: NoteFile! = {
         var dir : URL
@@ -115,8 +116,16 @@ extension AppDelegate: NSOutlineViewDelegate, NSOutlineViewDataSource
     
     func outlineViewSelectionDidChange(_ notification: Notification)
     {
-//        let x = outline.item(atRow: outline.selectedRow)
-//        print(x)
+        if let x = outline.item(atRow: outline.selectedRow) as? NoteFile
+        {
+            var c = noted_canvas_open(x.url.path)
+            if(c == nil)
+            {
+                c = noted_canvas_new(x.url.path)
+            }
+            canvas.setCanvas(canvas: c!)
+            Swift.print(x.url.path)
+        }
     }
 }
 

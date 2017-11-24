@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		DD622BC91FC3A0B1000A0252 /* NCView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD622BC81FC3A0B1000A0252 /* NCView.swift */; };
 		DD622BCC1FC3D007000A0252 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD622BCB1FC3D007000A0252 /* AppDelegate.swift */; };
-		DD622BD11FC50D1B000A0252 /* nc-loadsave.c in Sources */ = {isa = PBXBuildFile; fileRef = DD622BCF1FC50D1B000A0252 /* nc-loadsave.c */; };
+		DD622BD11FC50D1B000A0252 /* nc-opensave.c in Sources */ = {isa = PBXBuildFile; fileRef = DD622BCF1FC50D1B000A0252 /* nc-opensave.c */; };
 		DD622BD41FC50DB5000A0252 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = DD622BD21FC50DB5000A0252 /* array.c */; };
 		DDDB57FA1EF04FBF00ED8F0D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */; };
 		DDDB57FD1EF04FBF00ED8F0D /* Main.xib in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57FB1EF04FBF00ED8F0D /* Main.xib */; };
@@ -20,7 +20,7 @@
 		DD622BC81FC3A0B1000A0252 /* NCView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NCView.swift; path = src/cocoa/NCView.swift; sourceTree = "<group>"; };
 		DD622BCA1FC3A2D3000A0252 /* swift-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swift-bridge.h"; path = "src/cocoa/swift-bridge.h"; sourceTree = "<group>"; };
 		DD622BCB1FC3D007000A0252 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = src/cocoa/AppDelegate.swift; sourceTree = "<group>"; };
-		DD622BCF1FC50D1B000A0252 /* nc-loadsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "nc-loadsave.c"; path = "src/nc-loadsave.c"; sourceTree = "<group>"; };
+		DD622BCF1FC50D1B000A0252 /* nc-opensave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "nc-opensave.c"; path = "src/nc-opensave.c"; sourceTree = "<group>"; };
 		DD622BD01FC50D1B000A0252 /* nc-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "nc-private.h"; path = "src/nc-private.h"; sourceTree = "<group>"; };
 		DD622BD21FC50DB5000A0252 /* array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = array.c; path = src/array.c; sourceTree = "<group>"; };
 		DD622BD31FC50DB5000A0252 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = src/array.h; sourceTree = "<group>"; };
@@ -48,7 +48,7 @@
 			children = (
 				DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */,
 				DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */,
-				DD622BCF1FC50D1B000A0252 /* nc-loadsave.c */,
+				DD622BCF1FC50D1B000A0252 /* nc-opensave.c */,
 				DD622BD01FC50D1B000A0252 /* nc-private.h */,
 				DD622BD21FC50DB5000A0252 /* array.c */,
 				DD622BD31FC50DB5000A0252 /* array.h */,
@@ -150,7 +150,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DD622BD11FC50D1B000A0252 /* nc-loadsave.c in Sources */,
+				DD622BD11FC50D1B000A0252 /* nc-opensave.c in Sources */,
 				DD622BCC1FC3D007000A0252 /* AppDelegate.swift in Sources */,
 				DDDB580C1EF090DC00ED8F0D /* notedcanvas.c in Sources */,
 				DD622BC91FC3A0B1000A0252 /* NCView.swift in Sources */,
