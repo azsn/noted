@@ -53,8 +53,8 @@ void * array_reserve(void *data, size_t size, bool create)
         arr = realloc(arr, sizeof(Array) + (arr->elementSize * arr->capacity));
     }
     
-    if(create)
-        arr->size = arr->capacity;
+    if(create && size > arr->size)
+        arr->size = size;
     
     return &arr->data;
 }
