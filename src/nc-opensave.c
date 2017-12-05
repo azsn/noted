@@ -137,9 +137,13 @@ NotedCanvas * load_canvas_v1(FILE *f)
             
             s->page = p;
             s->style = fs.style;
-            // Preallocate space for stroke data
             s->x = array_new(sizeof(float), NULL);
             s->y = array_new(sizeof(float), NULL);
+            
+            if(fs.npoints == 0)
+                continue;
+            
+            // Preallocate space for stroke data
             s->x = array_reserve(s->x, fs.npoints, true);
             s->y = array_reserve(s->y, fs.npoints, true);
 
@@ -148,9 +152,6 @@ NotedCanvas * load_canvas_v1(FILE *f)
                 goto fail;
             if(fread(s->y, sizeof(float), fs.npoints, f) != fs.npoints)
                 goto fail;
-            
-            if(fs.npoints == 0)
-                continue;
             
             // Calculate stroke's bounding box and maxDistSq
             s->x[0] = ntohf(s->x[0]);
