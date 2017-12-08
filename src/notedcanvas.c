@@ -34,6 +34,12 @@ NotedCanvas * noted_canvas_new(const char *path)
     self->path = strdup(path);
     self->pages = array_new(sizeof(Page), (FreeNotify)free_page);
     append_page(self);
+    
+    if(!noted_canvas_save(self, self->path))
+    {
+        printf("error saving to %s\n", self->path);
+    }
+    
     return self;
 }
 

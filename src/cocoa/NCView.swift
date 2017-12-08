@@ -19,6 +19,14 @@ class NCView: NSView
         super.init(coder: coder)
     }
     
+    deinit
+    {
+        if(self.canvas != nil)
+        {
+            noted_canvas_destroy(self.canvas)
+        }
+    }
+    
     override var acceptsFirstResponder: Bool
     {
         return true
@@ -29,9 +37,20 @@ class NCView: NSView
         return true
     }
 
-    func setCanvas(canvas: OpaquePointer)
+    // Takes ownership of canvas
+    func setCanvas(canvas: OpaquePointer!)
     {
+        if(self.canvas != nil)
+        {
+            noted_canvas_destroy(self.canvas)
+        }
+        
         self.canvas = canvas
+        if(self.canvas == nil)
+        {
+            return
+        }
+        
         noted_canvas_set_invalidate_callback(self.canvas, invalidate_callback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
         
         var style = NCStrokeStyle()
@@ -162,6 +181,11 @@ class NCView: NSView
     override func tabletProximity(with event: NSEvent)
     {
         self.currentTool = (event.pointingDeviceType == NSPointingDeviceType.eraser) ? kNCEraserTool : kNCPenTool
+    }
+    
+    func delete(_ sender: Any?)
+    {
+        Swift.print("delete")
     }
     
 //    - (void)onRedo:(void *)v

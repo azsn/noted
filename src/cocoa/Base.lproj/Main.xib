@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11201" systemVersion="15G1611" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11201"/>
     </dependencies>
     <objects>
@@ -16,6 +15,7 @@
             <connections>
                 <outlet property="canvas" destination="b3Q-17-LGT" id="N0u-wx-5Yv"/>
                 <outlet property="outline" destination="TTF-ZW-Hsv" id="6pc-i7-A26"/>
+                <outlet property="window" destination="ABv-XR-W54" id="zIP-ar-GgC"/>
             </connections>
         </customObject>
         <window title="Noted" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" frameAutosaveName="" animationBehavior="default" id="ABv-XR-W54">
@@ -46,7 +46,7 @@
                                                     <color key="backgroundColor" white="1" alpha="0.0" colorSpace="deviceWhite"/>
                                                     <color key="gridColor" white="0.80000000000000004" alpha="0.10111923758865249" colorSpace="deviceWhite"/>
                                                     <tableColumns>
-                                                        <tableColumn identifier="" editable="NO" width="197" minWidth="40" maxWidth="1000" id="Reh-su-dtp">
+                                                        <tableColumn identifier="" width="197" minWidth="40" maxWidth="1000" id="Reh-su-dtp">
                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                                 <font key="font" metaFont="smallSystem"/>
                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -184,7 +184,12 @@
                         <items>
                             <menuItem title="New Note" keyEquivalent="n" id="Was-JA-tGl">
                                 <connections>
-                                    <action selector="newDocument:" target="-1" id="4Si-XN-c54"/>
+                                    <action selector="newNote:" target="Voe-Tx-rLC" id="zNN-uv-8Jm"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="New Directory" keyEquivalent="N" id="beO-1I-Psa">
+                                <connections>
+                                    <action selector="newDirectory:" target="Voe-Tx-rLC" id="hZb-51-Fh5"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
@@ -245,9 +250,12 @@
                                 </connections>
                             </menuItem>
                             <menuItem title="Delete" id="pa3-QI-u2k">
+                                <string key="keyEquivalent" base64-UTF8="YES">
+CA
+</string>
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="delete:" target="-1" id="0Mk-Ml-PaM"/>
+                                    <action selector="delete:" target="-1" id="C48-mI-7GZ"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Select All" keyEquivalent="a" id="Ruw-6m-B2m">
