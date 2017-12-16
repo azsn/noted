@@ -21,6 +21,7 @@ typedef void (*FreeNotify)(void *element);
  *
  * Only free this with array_free.
  */
+__attribute__((warn_unused_result))
 void * array_new(size_t elementSize, FreeNotify freeElement);
 
 /*
@@ -38,6 +39,7 @@ void array_free(void *array);
  * zero the new space). This should always be called as
  * a = array_reserve(a, size);
  */
+__attribute__((warn_unused_result))
 void * array_reserve(void *data, size_t size, bool create);
 
 /*
@@ -45,6 +47,7 @@ void * array_reserve(void *data, size_t size, bool create);
  * to the array. This should always be called as
  * a = array_append(a, elem);
  */
+__attribute__((warn_unused_result))
 void * array_append(void *array, void *element);
 
 /*
@@ -60,6 +63,13 @@ void * array_append(void *array, void *element);
  * on the removed element.
  */
 void array_remove(void *array, size_t index, bool free);
+
+/*
+ * Reduces the array's size to size elements, optionally
+ * freeing the elements. If size is larger than the current
+ * size, nothing happens.
+ */
+void array_shrink(void *array, size_t size, bool free);
 
 /*
  * Returns the size of the array.

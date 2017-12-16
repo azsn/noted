@@ -107,6 +107,22 @@ void array_remove(void *data, size_t index, bool free)
     --arr->size;
 }
 
+void array_shrink(void *data, size_t size, bool free)
+{
+    Array *arr = array_from_data(data);
+
+    if(arr->size <= size)
+        return;
+    
+    if(free && arr->freeElement)
+    {
+        for(size_t i = size; i < arr->size; ++i)
+            arr->freeElement(&data[i]);
+    }
+    
+    arr->size = size;
+}
+
 size_t array_size(void *data)
 {
     Array *arr = array_from_data(data);
