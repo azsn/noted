@@ -19,6 +19,8 @@ static void draw_page(cairo_t *cr, Page *p);
 static void draw_stroke(cairo_t *cr, Stroke *s, float magnification);
 static void append_page(NotedCanvas *self);
 static void calculate_control_points(float *p, int n, float *cp1, float *cp2);
+static size_t remove_detail(float *x, float *y, float *ox, float *oy, size_t n, float epsilon);
+static size_t remove_detail_slow(float *x, float *y, float *ox, float *oy, size_t n, float epsilon);
 static void clear_redos(NotedCanvas *self);
 
 static inline NCRect * expand_rect(NCRect *a, float amount);
@@ -27,6 +29,8 @@ static inline bool point_in_rect(NCRect *r, float x, float y);
 extern inline void rect_expand_by_point(NCRect *a, float x, float y);
 extern inline float sq_dist(float x1, float y1, float x2, float y2);
 
+float *LX, *LY;
+int Ln;
 
 NotedCanvas * noted_canvas_new(const char *path)
 {
@@ -66,6 +70,78 @@ void noted_canvas_set_invalidate_callback(NotedCanvas *self, NCInvalidateCallbac
 
 void noted_canvas_draw(NotedCanvas *self, cairo_t *cr, float magnification)
 {
+//    cairo_rectangle(cr, 0, 0, 1, 1);
+//    cairo_set_source_rgb(cr, 1, 1, 1);
+//    cairo_fill(cr);
+//    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+//    if(LX == NULL)
+//    {
+//        LX = array_new(sizeof(float), NULL);
+//        LY = array_new(sizeof(float), NULL);
+//        
+//        Ln = 20;
+//        LX = array_reserve(LX, Ln, true);
+//        LY = array_reserve(LY, Ln, true);
+//        
+//        for(int i = 0; i < Ln; ++i)
+//        {
+//            float prevX = i == 0 ? 0.1 : LX[i-1];
+//            LX[i] = prevX + ((float)rand() / RAND_MAX)/13.f;
+//            if(LX[i] > 1)
+//            {
+//                Ln = i + 1;
+//                break;
+//            }
+//            
+//            LY[i] = 0.4 + ((float)rand() / RAND_MAX) / 5;
+//            printf("(%f, %f)\n", LX[i], LY[i]);
+//        }
+//    }
+//    
+//    float e[] = {0, 0.05, 0.1, 0.2};
+//    float colr[] = {0.9, 0.1, 0.1, 0};
+//    float colg[] = {0.1, 0.9, 0.1, 0};
+//    float colb[] = {0.1, 0.1, 0.9, 0};
+//    float rad[] = {1/150.0, 1/200.0, 1/250.0, 1/300.0};
+//    
+//    for(int i = 1; i <= sizeof(e) / sizeof(float); ++i)
+//    {
+//        float *x = array_new(sizeof(float), NULL);
+//        float *y = array_new(sizeof(float), NULL);
+//        x = array_reserve(x, Ln, true);
+//        y = array_reserve(y, Ln, true);
+//        
+////        size_t beh;
+////        
+////        while((beh = remove_detail(LX, LY, x, y, Ln, e)) >= newn)
+////            e += 0.01;
+////        newn = beh;
+//    
+//        size_t beh = remove_detail(LX, LY, x, y, Ln, e[i - 1]);
+//        
+//        cairo_set_source_rgba(cr, colr[i-1], colg[i-1], colb[i-1], 1);
+//        cairo_set_line_width(cr, 1/500.f);
+//        cairo_new_path(cr);
+//        cairo_move_to(cr, x[0], y[0]);
+//        for(unsigned long j = 1; j < beh; ++j)
+//            cairo_line_to(cr, x[j], y[j]);
+//        array_free(x);
+//        array_free(y);
+//        cairo_stroke(cr);
+//        
+//        
+//        for(unsigned long j = 0; j < beh; ++j)
+//        {
+//            cairo_new_path(cr);
+//            cairo_translate(cr, x[j], y[j]);
+//            cairo_arc(cr, 0, 0, rad[i - 1], 0, 2 * M_PI);
+//            cairo_fill(cr);
+//            cairo_translate(cr, -x[j], -y[j]);
+//        }
+//    }
+    
+//    return;
+    
     NCRect clipRect, relClipRect;
     
     {
@@ -289,10 +365,53 @@ static void pen_input(NotedCanvas *self, NCInputState state, float x, float y, f
     
     rect_expand_by_point(&s->bounds, x, y);
     
-    if(state == kNCToolUp)
-        self->currentStroke = NULL;
-    
     size_t npoints = array_size(s->x);
+
+    static int total = 0;
+    static int original = 0;
+    
+    if(state == kNCToolUp)
+    {
+        float e = s->style.thickness / 20.0;
+        
+        clock_t begin = clock();
+        size_t osize = remove_detail(s->x, s->y, s->x, s->y, (int)npoints, e);
+        clock_t end = clock();
+        
+        double timems = ((double)(end - begin) / CLOCKS_PER_SEC) * 1000.0;
+        total += osize;
+        original += npoints;
+        
+        printf("%i -> %i (time: %.3fms) (%.3f%%)\n", (int)npoints, (int)osize, (float)timems, (float)total / original);
+        
+        npoints = osize;
+        array_shrink(s->x, osize, false);
+        array_shrink(s->y, osize, false);
+        
+//        float *ox = array_new(sizeof(float), NULL);
+//        float *oy = array_new(sizeof(float), NULL);
+//        ox = array_reserve(ox, npoints, true);
+//        oy = array_reserve(oy, npoints, true);
+//        
+////        size_t osize = 0;
+//        for(int z = 0; z < 10000; ++z)
+        
+//        printf("fast: %fms\n", time_spent*1000);
+        
+//        begin = clock();
+////        for(int z = 0; z < 10000; ++z)
+//            remove_detail_slow(s->x, s->y, ox, oy, (int)npoints, t);
+//        end = clock();
+//        double time_spent2 = (double)(end - begin) / CLOCKS_PER_SEC;
+//        printf("slow: %fms\n", time_spent2*1000);
+        
+        NCRect z = s->bounds;
+        expand_rect(&z, s->style.thickness);
+        self->invalidateCallback(self, &z, self->callbackData);
+        
+        self->currentStroke = NULL;
+    }
+    
     if(npoints > 1)
     {
         // Invalidate the rect containing the past few points
@@ -656,6 +775,149 @@ static void calculate_control_points(float *p, int n, float *cp1, float *cp2)
     
     cp2[n-1] = 0.5 * (p[n] + cp1[n-1]);
 }
+
+static inline float perpendicularDist(float x0, float y0, float x1, float y1, float x2, float y2)
+{
+    float a = fabsf(((y2 - y1) * x0) - ((x2 - x1) * y0) + (x2 * y1) - (y2 * x1));
+    return a / sqrt(sq_dist(x1, y1, x2, y2));
+}
+
+// Ramer-Douglas-Peucker algorithm. Uses epsilon to reduce
+// the number of points in a curve while keeping it looking
+// approximately the same.
+// Takes input arrays x and y, and outputs in ox and oy.
+// Set ox = x and oy = y to output directly into the input
+// arrays. Returns the new number of points in the output.
+static size_t remove_detail_slow(float *x, float *y, float *ox, float *oy, size_t n, float epsilon)
+{
+    // Can't reduce 0 or 1 points.
+    if(n == 0)
+        return 0;
+    if(n == 1)
+    {
+        ox[0] = x[0];
+        oy[0] = y[0];
+        return 1;
+    }
+    
+    // Find point furthest from the line between start and end
+    float dmax = 0;
+    size_t index = 0;
+    
+    for(size_t i = 1; i < n - 1; ++i)
+    {
+        float d = perpendicularDist(x[i], y[i], x[0], y[0], x[n - 1], y[n - 1]);
+        if(d > dmax)
+        {
+            index = i;
+            dmax = d;
+        }
+    }
+    
+    if(dmax > epsilon)
+    {
+        ++index; // Index becomes number of points to the split
+        // There was a point further away than epsilon. Split the
+        // array at this point and recursively shrink each half.
+        size_t l1 = remove_detail(x, y, ox, oy, index, epsilon);
+        // The first call shrunk the array to l1 points, so output
+        // into oxy + l1, avoiding gaps.
+        size_t l2 = remove_detail(x + index, y + index, ox + l1, oy + l1, n - index, epsilon);
+        return l1 + l2;
+    }
+    else
+    {
+        // All points in the range were closer than epsilon, so drop
+        // them all and only include the first and last points.
+        ox[0] = x[0];
+        oy[0] = y[0];
+        ox[1] = x[n - 1];
+        oy[1] = y[n - 1];
+        // This segment will always have exactly two points.
+        return 2;
+    }
+}
+
+
+
+// Ramer-Douglas-Peucker algorithm. Uses epsilon to reduce
+// the number of points in a curve while keeping it looking
+// approximately the same.
+// Takes input arrays x and y, and outputs in ox and oy.
+// Set ox = x and oy = y to output directly into the input
+// arrays. Returns the new number of points in the output.
+static size_t remove_detail(float *x, float *y, float *ox, float *oy, size_t n, float epsilon)
+{
+    // Can't reduce 0 to 2 points.
+    if(n == 0)
+    {
+        return 0;
+    }
+    else if(n == 1)
+    {
+        ox[0] = x[0];
+        oy[0] = y[0];
+        return 1;
+    }
+    else if(n == 2)
+    {
+        ox[0] = x[0];
+        oy[0] = y[0];
+        ox[1] = x[1];
+        oy[1] = y[1];
+        return 2;
+    }
+    
+    // Find point furthest from the line between start and end
+    float dmax = 0;
+    size_t index = 0;
+
+    // Decomposed the formula to calculate the distance between
+    // xy[i] and the line. Put the constant parts out here.
+    float a = (x[n - 1] * y[0]) - (y[n - 1] * x[0]);
+    float b = y[n - 1] - y[0];
+    float c = x[n - 1] - x[0];
+    
+    for(size_t i = 1; i < n - 1; ++i)
+    {
+        float d = fabsf((b * x[i]) - (c * y[i]) + a);
+        if(d > dmax)
+        {
+            index = i;
+            dmax = d;
+        }
+    }
+    
+    // Instead of dividing each d by the dist, just multiply
+    // epsilon by it. Taking the sqrt or not doesn't make a
+    // noticable difference.
+    float epsq = epsilon * sqrt(sq_dist(x[0], y[0], x[n - 1], y[n - 1]));
+
+    if(dmax > epsq)
+    {
+        // index becomes number of points to the split
+        ++index;
+        // There was a point further away than epsilon. Split the
+        // array at this point and recursively shrink each half.
+        size_t l1 = remove_detail(x, y, ox, oy, index, epsilon);
+        // The first call shrunk the array to l1 points, so output
+        // into oxy + l1, avoiding gaps.
+        size_t l2 = remove_detail(x + index, y + index, ox + l1, oy + l1, n - index, epsilon);
+        return l1 + l2;
+    }
+    else
+    {
+        // All points in the range were closer than epsilon, so drop
+        // them all and only include the first and last points.
+        ox[0] = x[0];
+        oy[0] = y[0];
+        ox[1] = x[n - 1];
+        oy[1] = y[n - 1];
+        // This segment will always have two points.
+        return 2;
+    }
+}
+
 
 static void clear_redos(NotedCanvas *self)
 {
