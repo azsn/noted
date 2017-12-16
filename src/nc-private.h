@@ -41,6 +41,7 @@ struct NotedCanvas_
     float eraserPrevX, eraserPrevY;
     NCStrokeStyle currentStyle;
     char *path;
+    bool inGesture; // True from input down to input up
 };
 
 void free_stroke(Stroke *s);

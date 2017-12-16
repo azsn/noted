@@ -123,6 +123,9 @@ void noted_canvas_draw(NotedCanvas *self, cairo_t *cr, float magnification)
 
 void noted_canvas_input(NotedCanvas *self, NCInputState state, NCInputTool tool, float x, float y, float pressure)
 {
+    if(state == kNCToolDown)
+        self->inGesture = true;
+    
     switch(tool)
     {
         case kNCPenTool:
@@ -137,12 +140,19 @@ void noted_canvas_input(NotedCanvas *self, NCInputState state, NCInputTool tool,
             break;
     }
     
-    if(state == kNCToolUp && self->path)
+    // Sometimes dragging causes kNCToolUp events, even though there
+    // was never a down event, which triggers an unneeded save
+    if(self->inGesture && state == kNCToolUp)
     {
-        printf("save to %s\n", self->path);
-        if(!noted_canvas_save(self, self->path))
+        self->inGesture = false;
+        
+        if(self->path)
         {
-            printf("error saving to %s\n", self->path);
+            printf("save to %s\n", self->path);
+            if(!noted_canvas_save(self, self->path))
+            {
+                printf("error saving to %s\n", self->path);
+            }
         }
     }
 }
