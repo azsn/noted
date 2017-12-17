@@ -35,6 +35,11 @@ class AppDelegate: NSObject, NSApplicationDelegate
         return true
     }
     
+    override func awakeFromNib()
+    {
+        window.titleVisibility = .hidden
+    }
+    
     @IBAction func newNote(_ sender: AnyObject)
     {
         if let selected = self.outline.item(atRow: self.outline.selectedRow) as? NoteFile ?? AppDelegate.noteDirectory

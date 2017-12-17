@@ -10,7 +10,7 @@ import Cocoa
 
 class NCView: NSView
 {
-    static var kPageWidth: CGFloat = 500
+    static var kPageWidth: CGFloat = 750
     var canvas: OpaquePointer?
     var currentTool: NCInputTool = kNCPenTool
     
@@ -104,7 +104,7 @@ class NCView: NSView
         let magnification = (self.superview?.superview as? NSScrollView)?.magnification ?? 1
         
         // Draw
-        noted_canvas_draw(canvas, cr, Float(magnification))
+        noted_canvas_draw(self.canvas, cr, Float(magnification))
         
         // Done
         cairo_destroy(cr)
@@ -227,6 +227,85 @@ class CenteredClipView: NSClipView
         }
         
         return rect
+    }
+}
+
+// Scroll view wih a drop down menu to select
+// and show magnification percentage
+class NCScrollView : NSScrollView
+{
+    @IBOutlet weak var zoomDropDown: NSPopUpButton!
+    var fitWidth = false;
+    
+    override func magnify(with event: NSEvent)
+    {
+        super.magnify(with: event)
+        self.fitWidth = false;
+        selectAppropriate(self.magnification)
+    }
+    
+    @IBAction func onZoomSelect(_ sender: AnyObject)
+    {
+        guard let id = zoomDropDown.selectedItem?.identifier else
+        {
+            return
+        }
+                
+        if(id == "fitwidth")
+        {
+            self.fitWidth = true;
+            if let contentWidth = self.contentView.documentView?.frame.width
+            {
+                let mag = self.contentView.frame.width / contentWidth
+                self.animator().magnification = mag
+                selectAppropriate(mag)
+            }
+        }
+        else
+        {
+            self.fitWidth = false;
+            if let percent = Int(id)
+            {
+                let mag = CGFloat(percent) / 100.0
+                self.animator().magnification = mag
+                selectAppropriate(mag)
+            }
+        }
+    }
+    
+    override func setFrameSize(_ newSize: NSSize)
+    {
+        super.setFrameSize(newSize)
+        
+        if(self.fitWidth)
+        {
+            if let contentWidth = self.contentView.documentView?.frame.width
+            {
+                let mag = self.contentView.frame.width / contentWidth
+                self.magnification = mag
+                selectAppropriate(mag)
+            }
+        }
+    }
+    
+    func selectAppropriate(_ magnification: CGFloat)
+    {
+        let mag = String(describing: Int(magnification * 100)) + "%"
+        zoomDropDown.setTitle(mag)
+        if(self.fitWidth)
+        {
+            for item in zoomDropDown.itemArray
+            {
+                item.state = (item.title == "Fit Width") ? 1 : 0
+            }
+        }
+        else
+        {
+            for item in zoomDropDown.itemArray
+            {
+                item.state = (item.title == mag) ? 1 : 0
+            }
+        }
     }
 }
 
