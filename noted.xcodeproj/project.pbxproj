@@ -11,9 +11,11 @@
 		DD622BCC1FC3D007000A0252 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD622BCB1FC3D007000A0252 /* AppDelegate.swift */; };
 		DD622BD11FC50D1B000A0252 /* nc-opensave.c in Sources */ = {isa = PBXBuildFile; fileRef = DD622BCF1FC50D1B000A0252 /* nc-opensave.c */; };
 		DD622BD41FC50DB5000A0252 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = DD622BD21FC50DB5000A0252 /* array.c */; };
+		DDD585E31FE5B4DB0038D1C3 /* NCColorSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD585E21FE5B4DB0038D1C3 /* NCColorSelectView.swift */; };
 		DDDB57FA1EF04FBF00ED8F0D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */; };
 		DDDB57FD1EF04FBF00ED8F0D /* Main.xib in Resources */ = {isa = PBXBuildFile; fileRef = DDDB57FB1EF04FBF00ED8F0D /* Main.xib */; };
 		DDDB580C1EF090DC00ED8F0D /* notedcanvas.c in Sources */ = {isa = PBXBuildFile; fileRef = DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */; };
+		DDE4CA451FE582CF00164CE1 /* nc-color-select.c in Sources */ = {isa = PBXBuildFile; fileRef = DDE4CA431FE582CF00164CE1 /* nc-color-select.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,12 +26,15 @@
 		DD622BD01FC50D1B000A0252 /* nc-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "nc-private.h"; path = "src/nc-private.h"; sourceTree = "<group>"; };
 		DD622BD21FC50DB5000A0252 /* array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = array.c; path = src/array.c; sourceTree = "<group>"; };
 		DD622BD31FC50DB5000A0252 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = src/array.h; sourceTree = "<group>"; };
+		DDD585E21FE5B4DB0038D1C3 /* NCColorSelectView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NCColorSelectView.swift; path = src/cocoa/NCColorSelectView.swift; sourceTree = "<group>"; };
 		DDDB57EA1EF04FBF00ED8F0D /* noted.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noted.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = src/cocoa/Assets.xcassets; sourceTree = "<group>"; };
 		DDDB57FC1EF04FBF00ED8F0D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Main.xib; sourceTree = "<group>"; };
 		DDDB57FE1EF04FBF00ED8F0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/cocoa/Info.plist; sourceTree = "<group>"; };
 		DDDB580A1EF090DC00ED8F0D /* notedcanvas.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = notedcanvas.c; path = src/notedcanvas.c; sourceTree = "<group>"; };
 		DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = notedcanvas.h; path = src/notedcanvas.h; sourceTree = "<group>"; };
+		DDE4CA431FE582CF00164CE1 /* nc-color-select.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "nc-color-select.c"; path = "src/nc-color-select.c"; sourceTree = "<group>"; };
+		DDE4CA441FE582CF00164CE1 /* nc-color-select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "nc-color-select.h"; path = "src/nc-color-select.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +55,8 @@
 				DDDB580B1EF090DC00ED8F0D /* notedcanvas.h */,
 				DD622BCF1FC50D1B000A0252 /* nc-opensave.c */,
 				DD622BD01FC50D1B000A0252 /* nc-private.h */,
+				DDE4CA431FE582CF00164CE1 /* nc-color-select.c */,
+				DDE4CA441FE582CF00164CE1 /* nc-color-select.h */,
 				DD622BD21FC50DB5000A0252 /* array.c */,
 				DD622BD31FC50DB5000A0252 /* array.h */,
 				DDDE33641FB3F2210061CAF2 /* Cocoa */,
@@ -71,6 +78,7 @@
 				DDDB57FE1EF04FBF00ED8F0D /* Info.plist */,
 				DDDB57FB1EF04FBF00ED8F0D /* Main.xib */,
 				DD622BC81FC3A0B1000A0252 /* NCView.swift */,
+				DDD585E21FE5B4DB0038D1C3 /* NCColorSelectView.swift */,
 				DD622BCB1FC3D007000A0252 /* AppDelegate.swift */,
 				DD622BCA1FC3A2D3000A0252 /* swift-bridge.h */,
 				DDDB57F91EF04FBF00ED8F0D /* Assets.xcassets */,
@@ -150,6 +158,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDE4CA451FE582CF00164CE1 /* nc-color-select.c in Sources */,
+				DDD585E31FE5B4DB0038D1C3 /* NCColorSelectView.swift in Sources */,
 				DD622BD11FC50D1B000A0252 /* nc-opensave.c in Sources */,
 				DD622BCC1FC3D007000A0252 /* AppDelegate.swift in Sources */,
 				DDDB580C1EF090DC00ED8F0D /* notedcanvas.c in Sources */,

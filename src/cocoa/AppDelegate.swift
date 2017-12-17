@@ -14,6 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
 
     @IBOutlet weak var outline: NSOutlineView!
     @IBOutlet weak var canvas: NCView!
+    @IBOutlet weak var colorselect: NCColorSelectView!
     @IBOutlet weak var window: NSWindow!
     var currentFile: NoteFile!
     
@@ -23,6 +24,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
         if let selected = self.outline.item(atRow: self.outline.selectedRow) as? NoteFile
         {
             self.canvas.setCanvas(canvas: selected.open())
+            self.colorselect.set_canvas(self.canvas.canvas!)
         }
     }
     
@@ -47,6 +49,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
             if let (new, c) = selected.createNew()
             {
                 self.canvas.setCanvas(canvas: c)
+                self.colorselect.set_canvas(self.canvas.canvas!)
                 self.outline.reloadData()
                 
                 let index = self.outline.row(forItem: new)
@@ -121,12 +124,14 @@ class AppDelegate: NSObject, NSApplicationDelegate
                                 if let c = selected.open()
                                 {
                                     self.canvas.setCanvas(canvas: c)
+                                    self.colorselect.set_canvas(self.canvas.canvas!)
                                     self.currentFile = selected
                                 }
                             }
                             else
                             {
                                 self.canvas.setCanvas(canvas: nil)
+                                self.colorselect.set_canvas(self.canvas.canvas!)
                             }
                         }
                         catch let e as NSError
@@ -219,6 +224,7 @@ extension AppDelegate: NSOutlineViewDelegate, NSOutlineViewDataSource
                         // If the currently open file was just renamed,
                         // reopen it with the new name
                         self.canvas.setCanvas(canvas: it.open())
+                        self.colorselect.set_canvas(self.canvas.canvas!)
                     }
                 }
                 catch let e as NSError
@@ -240,6 +246,7 @@ extension AppDelegate: NSOutlineViewDelegate, NSOutlineViewDataSource
             if let c = selected.open()
             {
                 self.canvas.setCanvas(canvas: c)
+                self.colorselect.set_canvas(self.canvas.canvas!)
                 self.currentFile = selected
             }
         }

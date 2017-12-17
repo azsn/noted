@@ -54,7 +54,7 @@ class NCView: NSView
         noted_canvas_set_invalidate_callback(self.canvas, invalidate_callback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
         
         var style = NCStrokeStyle()
-        style.a = 1
+        style.a = 255
         style.r = 0
         style.g = 0
         style.b = 0

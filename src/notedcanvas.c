@@ -113,7 +113,7 @@ void noted_canvas_draw(NotedCanvas *self, cairo_t *cr, float magnification)
                 continue;
             
             cairo_set_line_width(cr, s->style.thickness);
-            cairo_set_source_rgba(cr, s->style.r, s->style.g, s->style.b, s->style.a);
+            cairo_set_source_rgba(cr, s->style.r / 255.f, s->style.g / 255.f, s->style.b / 255.f, s->style.a / 255.f);
             draw_stroke(cr, s, magnification);
         }
         
@@ -167,6 +167,11 @@ float noted_canvas_get_height(NotedCanvas *self)
 void noted_canvas_set_stroke_style(NotedCanvas *self, NCStrokeStyle style)
 {
     self->currentStyle = style;
+}
+
+NCStrokeStyle noted_canvas_get_stroke_style(NotedCanvas *self)
+{
+    return self->currentStyle;
 }
 
 size_t noted_canvas_get_n_pages(NotedCanvas *self)

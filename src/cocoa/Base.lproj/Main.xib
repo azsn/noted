@@ -14,12 +14,13 @@
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="noted" customModuleProvider="target">
             <connections>
                 <outlet property="canvas" destination="b3Q-17-LGT" id="N0u-wx-5Yv"/>
+                <outlet property="colorselect" destination="PB7-ie-HPZ" id="ue4-Uq-YSZ"/>
                 <outlet property="outline" destination="TTF-ZW-Hsv" id="6pc-i7-A26"/>
                 <outlet property="window" destination="ABv-XR-W54" id="zIP-ar-GgC"/>
             </connections>
         </customObject>
         <window title="Noted" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" frameAutosaveName="" animationBehavior="default" id="ABv-XR-W54">
-            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" fullSizeContentView="YES"/>
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="505" y="293" width="902" height="480"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="lCv-GY-efu">
@@ -117,18 +118,24 @@
                         <rect key="frame" x="702" y="0.0" width="200" height="480"/>
                         <subviews>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="PB7-ie-HPZ" customClass="NCColorSelectView" customModule="noted" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="330" width="200" height="150"/>
+                                <rect key="frame" x="5" y="387" width="190" height="88"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="150" id="Fmz-2P-gN7"/>
+                                    <constraint firstAttribute="height" constant="88" id="Fmz-2P-gN7"/>
                                 </constraints>
                             </customView>
+                            <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="Cdx-Bu-3Ik">
+                                <rect key="frame" x="5" y="379" width="190" height="5"/>
+                            </box>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="PB7-ie-HPZ" firstAttribute="leading" secondItem="uqb-yH-wXl" secondAttribute="leading" id="4ia-kb-r6y"/>
-                            <constraint firstItem="PB7-ie-HPZ" firstAttribute="trailing" secondItem="uqb-yH-wXl" secondAttribute="trailing" id="JYu-uf-weU"/>
+                            <constraint firstItem="PB7-ie-HPZ" firstAttribute="leading" secondItem="uqb-yH-wXl" secondAttribute="leading" constant="5" id="4ia-kb-r6y"/>
+                            <constraint firstItem="PB7-ie-HPZ" firstAttribute="trailing" secondItem="uqb-yH-wXl" secondAttribute="trailing" constant="-5" id="JYu-uf-weU"/>
                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="KOG-Ys-wjs"/>
-                            <constraint firstItem="PB7-ie-HPZ" firstAttribute="top" secondItem="uqb-yH-wXl" secondAttribute="top" id="o07-XU-aEi"/>
+                            <constraint firstItem="Cdx-Bu-3Ik" firstAttribute="trailing" secondItem="uqb-yH-wXl" secondAttribute="trailing" constant="-5" id="fqO-nf-uWO"/>
+                            <constraint firstItem="Cdx-Bu-3Ik" firstAttribute="leading" secondItem="uqb-yH-wXl" secondAttribute="leading" constant="5" id="k0E-Eh-k9T"/>
+                            <constraint firstItem="PB7-ie-HPZ" firstAttribute="top" secondItem="uqb-yH-wXl" secondAttribute="top" constant="5" id="o07-XU-aEi"/>
                             <constraint firstAttribute="width" constant="200" id="oRd-ck-Ujx"/>
+                            <constraint firstItem="Cdx-Bu-3Ik" firstAttribute="top" secondItem="PB7-ie-HPZ" secondAttribute="bottom" constant="5" id="upO-Uy-5VH"/>
                         </constraints>
                     </customView>
                     <box horizontalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="7MQ-8n-HA4">

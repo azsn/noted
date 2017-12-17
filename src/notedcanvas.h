@@ -105,9 +105,15 @@ void noted_canvas_input(NotedCanvas *canvas, NCInputState state, NCInputTool too
 float noted_canvas_get_height(NotedCanvas *canvas);
 
 /*
- * Sets the style for future strokes or the current selection.
+ * Sets the style for future strokes, or if there is a
+ * selection, the current selection.
  */
 void noted_canvas_set_stroke_style(NotedCanvas *canvas, NCStrokeStyle style);
+
+/*
+ * Gets the style for future strokes.
+ */
+NCStrokeStyle noted_canvas_get_stroke_style(NotedCanvas *canvas);
 
 
 /*

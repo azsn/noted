@@ -10,6 +10,7 @@
 #define swift_bridge_h
 
 #import "notedcanvas.h"
+#import "nc-color-select.h"
 #import <cairo/cairo-quartz.h>
 
 #endif /* swift_bridge_h */
